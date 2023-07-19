@@ -1,5 +1,22 @@
+body {
+  margin: 0;
+  padding: 0;
+}
 .App {
   text-align: center;
+  height: auto;
+  width: 100%;
+  background-image: url("https://vietabinhdinh.edu.vn/wp-content/uploads/1679685571_986_Background-Powerpoint-HD-dep-don-gian-va-chuyen-nghiep.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.AppAdmin {
+  text-align: center;
+  height: auto;
+  width: 100%;
 }
 
 .App-logo {

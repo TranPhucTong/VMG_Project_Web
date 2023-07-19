@@ -1,0 +1,11 @@
+.color-transition {
+  background: linear-gradient(to right, purple, red);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 200px;
+  font-weight: bold;
+}
+.group:hover .group_hover {
+  --tw-bg-opacity: 1;
+  color: rgba(4, 120, 87, var(--tw-bg-opacity));
+}
