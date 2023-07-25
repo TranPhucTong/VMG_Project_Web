@@ -8,10 +8,34 @@ import { uploadBytesResumable, ref, getDownloadURL } from "firebase/storage";
 import storage from "../../../firebase/firebase";
 import ButtonAdmin from "../../../components/components-admin/ButtonAdmin";
 import { toast } from "react-toastify";
+import Select from 'react-select';
+import axios from 'axios';
+
+interface CountryOption {
+  value: string;
+  label: string;
+}
+
+interface CityOption {
+  value: string;
+  label: string;
+}
+
+interface City {
+  country: string;
+  geonameid: number;
+  name: string;
+  subcountry: string;
+}
 
 
 const AdminAddPlayer = () => {
+  const [countries, setCountries] = useState<CountryOption[]>([]);
+  const [selectedCountry, setSelectedCountry] = useState<CountryOption | null>(null);
+  // const [cities, setCities] = useState<CityOption[]>([]);
+  const [selectedCity, setSelectedCity] = useState<CityOption | null>(null);
   const navigate = useNavigate();
+
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isFormComplete, setIsFormComplete] = useState(false);
@@ -45,26 +69,29 @@ const AdminAddPlayer = () => {
       }
     }
   };
- 
+
 
   //Input
   const [namePlayer, setNamePlayer] = useState("");
-  const [country, setCountry] = useState("");
-  const [city, setCity] = useState("");
   const [linkInfo, setLinkInfo] = useState("");
+  const [data, setData] = useState<City[]>([]);
+  const [getCountry, setCountry] = useState<string | undefined>();
+  const [getState, setState] = useState<string[]>([]);
+  const [selectedState, setSelectedState] = useState<string | undefined>();
+  const [cities, setCities] = useState<City[]>([]);
 
   useEffect(() => {
-    if (namePlayer !== "" && country !== "" && city !== "" && linkInfo !== "" && selectedImage !== null) {
+    if (namePlayer !== "" && getCountry !== undefined && selectedState !== undefined && linkInfo !== "" && selectedImage !== null) {
       setIsFormComplete(true);
     } else {
       setIsFormComplete(false);
     }
-  }, [namePlayer, country, city, linkInfo, selectedImage]);
+  }, [namePlayer, getCountry, selectedState, linkInfo, selectedImage]);
 
   const defauthValue = () => {
     setSelectedImage(null);
     setNamePlayer("");
-    setCity("");
+    setSelectedState("");
     setCountry("");
     setLinkInfo("");
   }
@@ -73,8 +100,8 @@ const AdminAddPlayer = () => {
     const dataCreate: Object = {
       playerName: namePlayer,
       avatarImage: selectedImage,
-      country: country,
-      city: city,
+      country: getCountry,
+      city: selectedState,
       linkInfo: linkInfo,
     };
 
@@ -92,12 +119,6 @@ const AdminAddPlayer = () => {
   const handleNameChange = (value: string | number) => {
     setNamePlayer(String(value));
   };
-  const handleCountryChange = (value: string | number) => {
-    setCountry(String(value));
-  };
-  const handleCityChange = (value: string | number) => {
-    setCity(String(value));
-  };
   const handleLinkInfoChange = (value: string | number) => {
     setLinkInfo(String(value));
   };
@@ -105,6 +126,43 @@ const AdminAddPlayer = () => {
   // const handleSelectChange = (value: string) => {
   //   setSelectValue(value);
   // };
+
+
+  
+  
+
+  useEffect(() => {
+    axios
+      .get<City[]>(
+        "https://pkgstore.datahub.io/core/world-cities/world-cities_json/data/5b3dd46ad10990bca47b04b4739a02ba/world-cities_json.json"
+      )
+      .then((res) => setData(res.data))
+      .catch((err) => console.log(err));
+  }, []);
+
+  useEffect(() => {
+    if (getCountry) {
+      let states = data
+        .filter((state) => state.country === getCountry)
+        .map((item) => item.subcountry);
+      states = [...new Set(states)].sort();
+      setState(states);
+    }
+  }, [data, getCountry]);
+
+  useEffect(() => {
+    if (selectedState) {
+      const cities = data.filter(
+        (city) => city.subcountry === selectedState
+      );
+      setCities(cities);
+    }
+  }, [data, selectedState]);
+
+  const country1 = [...new Set(data.map((item) => item.country))].sort();
+
+
+
 
   return (
     <div className="">
@@ -124,9 +182,8 @@ const AdminAddPlayer = () => {
           <div className="flex gap-12">
             <div className="flex flex-col w-[30%] items-center">
               <div
-                className={`rounded-full overflow-hidden w-48 h-48 border-4 ${
-                  selectedImage ? "border-green-500" : "border-gray-500"
-                }`}
+                className={`rounded-full overflow-hidden w-48 h-48 border-4 ${selectedImage ? "border-green-500" : "border-gray-500"
+                  }`}
               >
                 {selectedImage ? (
                   <img
@@ -161,26 +218,8 @@ const AdminAddPlayer = () => {
                   value={namePlayer}
                   onChange={handleNameChange}
                   label="Name Player"
-                  validate={(value) => /^[A-Za-z\s]+$/.test(namePlayer)}
+                  // validate={(value) => /^[A-Za-z\s]+$/.test(namePlayer)}
                   placeholder="Vui lòng nhập tên ở đây"
-                />
-
-                <InputAdmin
-                  type="text"
-                  value={country}
-                  onChange={handleCountryChange}
-                  label="Country"
-                  placeholder="Vui lòng nhập quốc gia"
-                />
-              </div>
-              <div className="flex flex-col gap-10">
-                <InputAdmin
-                  type="text"
-                  value={city}
-                  onChange={handleCityChange}
-                  label="City"
-                  validate={(value) => /^[A-Za-z1-9\s]+$/.test(city)}
-                  placeholder="Vui lòng nhập thành phố"
                 />
                 <InputAdmin
                   type="text"
@@ -189,6 +228,44 @@ const AdminAddPlayer = () => {
                   label="Link Info"
                   placeholder="Vui lòng nhập đường link"
                 />
+
+                <div className="w-full flex flex-col justify-center items-center gap-4">
+                  <div className="w-full flex flex-col justify-center items-start gap-1">
+                    <label>Country:</label>
+                    <select className="border border-gray-400 rounded-md py-2 px-4" onChange={(e) => setCountry(e.target.value)}>
+                      <option value="">Select Country</option>
+                      {country1.map((items) => (
+                        <option key={items} value={items}>
+                          {items}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="w-full flex flex-col justify-center items-start gap-1">
+                    <label>City:</label>
+                    <select className="border border-gray-400 rounded-md py-2 px-4 w-full" onChange={(e) => setSelectedState(e.target.value)}>
+                      <option value="">Select City</option>
+                      {getState.map((items) => (
+                        <option key={items} value={items}>
+                          {items}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* <div>
+                    <label>City:</label>
+                    <select>
+                      <option value="">Select City</option>
+                      {cities.map((items) => (
+                        <option key={items.geonameid} value={items.name}>
+                          {items.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div> */}
+                </div>
 
                 <ButtonAdmin isFormComplete={isFormComplete} color="blue" onClick={clickAddPlayer}>
                   Add New Player

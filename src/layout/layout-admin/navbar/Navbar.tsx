@@ -4,6 +4,7 @@ import {
   faList,
   faHome,
   faPeopleLine,
+  faCalendar,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link, useLocation } from "react-router-dom";
 
@@ -19,11 +20,11 @@ const Navbar = () => {
       link: "/admin/player",
       icon: faPeopleLine,
     },
-    // {
-    //   name: "messages",
-    //   link: "/",
-    //   icon: faX,
-    // },
+    {
+      name: "Events",
+      link: "/admin/events",
+      icon: faCalendar,
+    },
     // {
     //   name: "analytics",
     //   link: "/",

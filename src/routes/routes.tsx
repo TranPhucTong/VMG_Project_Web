@@ -1,4 +1,5 @@
 import configRoutes from "../config/configRouter";
+import AdminEvents from "../pages/admin/admin-events/AdminEvents";
 import AdminHome from "../pages/admin/admin-home/AdminHome";
 import AdminAddPlayer from "../pages/admin/admin-player/AdminAddPlayer";
 import AdminPlayer from "../pages/admin/admin-player/AdminPlayer";
@@ -37,6 +38,10 @@ export const adminRoutes = [
   {
     path: configRoutes.adminUpdatePlayer,
     component: AdminUpdatePlayer,
+  },
+  {
+    path: configRoutes.adminEvents,
+    component: AdminEvents,
   },
 ];
 

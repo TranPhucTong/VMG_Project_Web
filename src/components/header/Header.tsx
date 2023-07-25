@@ -38,7 +38,7 @@ const Header = () => {
       </div>
       <div className="w-[50%] flex flex-col gap-2 pr-20">
         <div className="w-full h-auto text-white flex justify-center items-center">
-          <div className="w-full flex justify-between items-center cursor-pointer">
+          <div className="w-full flex gap-6 items-center cursor-pointer">
             {items.map((item, index) => (
               <div key={index}>
                 <h2
