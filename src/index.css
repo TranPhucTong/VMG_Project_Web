@@ -17,3 +17,19 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+.gradient-text {
+  background: linear-gradient(95.26deg, #B2934D -6.77%, #F9F294 44.31%, #715538 89.49%, #D3AE27 127.8%, #684D36 181.82%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* custom.css */
+
+.gradient-text-vertical {
+  background: linear-gradient(180deg, #B2934D 0%, #F9CD2E 19.79%, #F9F294 42.71%, #8B6E40 72.4%, #83673E 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}

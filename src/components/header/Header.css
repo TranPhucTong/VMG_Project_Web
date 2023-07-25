@@ -1,4 +1,10 @@
-.fixe {
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+.text-header {
+  
+}
+
+.text-header:hover {
+  background: linear-gradient(180deg, #B2934D 0%, #F9CD2E 19.79%, #F9F294 42.71%, #8B6E40 72.4%, #83673E 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
 }

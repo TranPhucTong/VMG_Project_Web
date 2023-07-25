@@ -1,16 +1,21 @@
 import {
   faArrowUpRightDots,
   faArrowUpRightFromSquare,
+  faBroom,
   faEdit,
   faEllipsis,
   faPlus,
+  faSearch,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState, useRef } from "react";
 import playerApi from "../../../api/playerApi";
 import { Navigate, useNavigate } from "react-router-dom";
-// import { TableRow } from "@mui/material";
+import { updateRequirePlayer } from "../../../reducers/slices/updatePlayerSlice";
+import { useDispatch } from "react-redux";
+import InputAdmin from "../../../components/components-admin/InputAdmin";
+import { toast } from "react-toastify";
 
 interface TableRow {
   _id: number;
@@ -32,6 +37,17 @@ const AdminPlayer = () => {
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
   const [data, setData] = useState<TableRow[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [selectValue, setSelectValue] = useState<string>("totalWin");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchType, setSearchType] = useState<string | number>('');
+
+
+  const handleSearchTermChange = (value: string | number) => {
+    setSearchTerm(String(value));
+  };
+  const handleSearchTypeChange = (value: string | number) => {
+    setSearchType(value);
+  };
 
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
 
@@ -39,14 +55,13 @@ const AdminPlayer = () => {
     setSelectedRow(selectedRow === rowIndex ? null : rowIndex);
   };
 
+  const handleSelectChange = (value: any) => {
+    setSelectValue(value);
+  };
+
   const handleDelete = (row: TableRow) => {
     // Xử lý logic xóa dữ liệu
     console.log("Delete row:", row);
-  };
-
-  const handleEdit = (row: TableRow) => {
-    // Xử lý logic chỉnh sửa dữ liệu
-    console.log("Edit row:", row);
   };
 
   const clickAddPlayer = async () => {
@@ -55,7 +70,14 @@ const AdminPlayer = () => {
 
   const fetchData = async () => {
     const res = await playerApi.getPlayer();
-    setData(res.data.players);
+    const resVpoy = await playerApi.getPlayerSortVpoy();
+    if (selectValue === "vpoyPoint") {
+      setData(resVpoy.data.players);
+    } else {
+      setData(res.data.players);
+    }
+    console.log(selectValue);
+
   };
   useEffect(() => {
     fetchData();
@@ -70,7 +92,41 @@ const AdminPlayer = () => {
     return () => {
       document.removeEventListener("click", handleOutsideClick);
     };
-  }, []);
+  }, [selectValue]);
+
+  const handleSearch = async () => {
+    if (searchType === "city" && searchTerm !== "") {
+      try {
+        const res = await playerApi.getPlayersSortCity(searchTerm, selectValue);
+        setData(res.data.players);
+        console.log("Thành công city", res);
+        setCurrentPage(1); // Cập nhật currentPage thành trang 1 sau khi tìm kiếm
+      } catch (error) {
+        console.log("Lỗi city", error);
+      }
+    } else if (searchType === "country" && searchTerm !== "") {
+      try {
+        const res = await playerApi.getPlayersSortCountry(searchTerm, selectValue);
+        setData(res.data.players);
+        console.log("Thành công country", res);
+        setCurrentPage(1); // Cập nhật currentPage thành trang 1 sau khi tìm kiếm
+      } catch (error) {
+        console.log("Lỗi country", error);
+      }
+    } else if (searchTerm === "") {
+      setSelectValue("totalWin");
+      const res = await playerApi.getPlayer();
+      setData(res.data.players);
+      setCurrentPage(1); // Cập nhật currentPage thành trang 1 khi không có tìm kiếm
+    }
+  }
+
+  const cleanSearch = () => {
+    setSelectValue("totalWin");
+    setSearchTerm("");
+    setSearchType("");
+    fetchData();
+  }
 
   let totalPlayer = 0;
 
@@ -95,6 +151,14 @@ const AdminPlayer = () => {
   const startIndex: number = (currentPage - 1) * rowsPerPage;
   const endIndex: number = startIndex + rowsPerPage;
   const currentRows: TableRow[] = data.slice(startIndex, endIndex);
+
+
+  const dispatch = useDispatch();
+  const handleSelectUpdatePlayer = (player: any) => {
+    dispatch(updateRequirePlayer(player));
+    navigate("/admin/player-update");
+  };
+
   return (
     <div>
       <div className="flex justify-between gap-8 items-center">
@@ -124,16 +188,60 @@ const AdminPlayer = () => {
       </div>
 
       <div className="mt-5 rounded-lg bg-white shadow-xl">
-        <div className="text-left p-6 border-b border-solid md:flex-row md:items-center md:gap-0 border-secondary text-sm md:text-base">
-          <span>Show rows per page:</span>
-          <select
-            className="ml-1 px-2 py-1 rounded-md border focus:outline-none focus:ring focus:border-blue-300"
-            value={rowsPerPage}
-            onChange={handleRowsPerPageChange}
-          >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-          </select>
+        <div className="text-left p-6 border-b flex justify-between items-center border-solid md:flex-row md:items-center md:gap-0 border-secondary text-sm md:text-base">
+          <div>
+            <span>Show rows per page:</span>
+            <select
+              className="ml-1 px-2 py-1 rounded-md border focus:outline-none focus:ring focus:border-blue-300"
+              value={rowsPerPage}
+              onChange={handleRowsPerPageChange}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+            </select>
+          </div>
+          <div className="flex justify-center items-center gap-4 mr-8">
+            <button onClick={cleanSearch} className="flex justify-center items-center gap-2 bg-green-500 rounded-2xl text-white py-1 px-3 hover:opacity-90 duration-150 transition-all ease-in-out ">
+              <FontAwesomeIcon icon={faBroom} />
+              <p>Clean</p>
+            </button>
+            <InputAdmin
+              type="select"
+              options={[
+                { value: "totalWin", label: "Sort by Total Winnings" },
+                { value: "vpoyPoint", label: "Vpoy Point" },
+              ]}
+              value={selectValue}
+              onChange={handleSelectChange}
+              placeholder=""
+            />
+            <InputAdmin
+              type="select"
+              options={[
+                { value: "", label: "Search by ..." },
+                { value: "city", label: "Search by City" },
+                { value: "country", label: "Search by country" },
+              ]}
+              value={searchType}
+              onChange={handleSearchTypeChange}
+              placeholder=""
+            />
+            <div className="relative">
+              <InputAdmin
+                type="text"
+                value={searchTerm}
+                onChange={handleSearchTermChange}
+                placeholder="Search here"
+              />
+              <span onClick={() => handleSearch()} className="absolute cursor-pointer inset-y-0 -right-7 flex items-center p-3 text-white font-bold bg-blue-500 rounded-r-xl">
+                <button className="text-white focus:outline-none">
+                  <FontAwesomeIcon icon={faSearch} />
+                </button>
+              </span>
+            </div>
+          </div>
+
+
         </div>
 
         <div className="overflow-x-auto pb-14">
@@ -175,11 +283,10 @@ const AdminPlayer = () => {
                 <tr
                   key={index}
                   className={`border-b-[5px] shadow-sm border-solid border-[#f4f4f9]
-                  ${
-                    index % 2 === 0
+                  ${index % 2 === 0
                       ? "border-l-4 border-l-blue-500"
                       : "border-l-4 border-l-green-500"
-                  }
+                    }
                   `}
                 >
                   <td className=" px-[16px] py-[20px] text-left min-w-[80px] pl-[24px] pr-[8px]">
@@ -233,7 +340,7 @@ const AdminPlayer = () => {
                           </div>
                           <button
                             className=" flex gap-3 justify-center items-center hover:text-[#2a4c87] w-full text-left px-4 py-2 text-gray-700 "
-                            onClick={() => handleEdit(row)}
+                            onClick={() => handleSelectUpdatePlayer(row)}
                           >
                             <FontAwesomeIcon
                               className="text-xl"
@@ -266,11 +373,10 @@ const AdminPlayer = () => {
             (page) => (
               <button
                 key={page}
-                className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300 ${
-                  page === currentPage
-                    ? "bg-blue-500 text-white"
-                    : "bg-white text-gray-700"
-                }`}
+                className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300 ${page === currentPage
+                  ? "bg-blue-500 text-white"
+                  : "bg-white text-gray-700"
+                  }`}
                 onClick={() => handlePageChange(page)}
               >
                 {page}

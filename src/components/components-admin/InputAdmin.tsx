@@ -12,6 +12,7 @@ type InputProps = {
   onChange: (value: string | number) => void;
   label?: string;
   validate?: (value: string | number) => boolean;
+  placeholder: string;
 };
 
 const InputAdmin: React.FC<InputProps> = ({
@@ -21,6 +22,7 @@ const InputAdmin: React.FC<InputProps> = ({
   onChange,
   label,
   validate,
+  placeholder
 }) => {
   const inputId = `input-${Math.random().toString(36).substring(7)}`;
   const [touched, setTouched] = useState(false);
@@ -56,7 +58,7 @@ const InputAdmin: React.FC<InputProps> = ({
           id={inputId}
           value={String(value)}
           onChange={handleInputChange}
-          placeholder="Vui lòng nhập ở đây"
+          placeholder={placeholder}
         />
       )}
       {type === "number" && (
@@ -66,7 +68,7 @@ const InputAdmin: React.FC<InputProps> = ({
           id={inputId}
           value={String(value)}
           onChange={handleInputChange}
-          placeholder="Vui lòng nhập ở đây"
+          placeholder={placeholder}
         />
       )}
       {type === "select" && (
@@ -75,7 +77,7 @@ const InputAdmin: React.FC<InputProps> = ({
           id={inputId}
           value={String(value)}
           onChange={handleSelectChange}
-          placeholder="Vui lòng chọn ở đây"
+          placeholder={placeholder}
         >
           {options?.map((option) => (
             <option key={option.value} value={option.value}>
@@ -91,6 +93,7 @@ const InputAdmin: React.FC<InputProps> = ({
           id={inputId}
           value={String(value)}
           onChange={handleDateChange}
+          placeholder={placeholder}
         />
       )}
       {isError && <p style={{ color: "red" }}>Không hợp lệ</p>}

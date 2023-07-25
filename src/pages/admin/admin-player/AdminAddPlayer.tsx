@@ -6,10 +6,16 @@ import InputAdmin from "../../../components/components-admin/InputAdmin";
 import playerApi from "../../../api/playerApi";
 import { uploadBytesResumable, ref, getDownloadURL } from "firebase/storage";
 import storage from "../../../firebase/firebase";
+import ButtonAdmin from "../../../components/components-admin/ButtonAdmin";
+import { toast } from "react-toastify";
+
+
 const AdminAddPlayer = () => {
   const navigate = useNavigate();
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isFormComplete, setIsFormComplete] = useState(false);
+
 
   const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -39,12 +45,29 @@ const AdminAddPlayer = () => {
       }
     }
   };
+ 
 
   //Input
   const [namePlayer, setNamePlayer] = useState("");
   const [country, setCountry] = useState("");
   const [city, setCity] = useState("");
   const [linkInfo, setLinkInfo] = useState("");
+
+  useEffect(() => {
+    if (namePlayer !== "" && country !== "" && city !== "" && linkInfo !== "" && selectedImage !== null) {
+      setIsFormComplete(true);
+    } else {
+      setIsFormComplete(false);
+    }
+  }, [namePlayer, country, city, linkInfo, selectedImage]);
+
+  const defauthValue = () => {
+    setSelectedImage(null);
+    setNamePlayer("");
+    setCity("");
+    setCountry("");
+    setLinkInfo("");
+  }
 
   const clickAddPlayer = async () => {
     const dataCreate: Object = {
@@ -58,8 +81,11 @@ const AdminAddPlayer = () => {
     try {
       const response = await playerApi.createPlayer(dataCreate);
       console.log("Thành công", response);
+      toast.success("Thêm người chơi mới thành công");
+      defauthValue();
     } catch (error) {
       console.log("Thất bại", error);
+      toast.error("Trùng tên hoặc chưa nhập đầy đủ thông tin. Vui lòng kiểm tra lại!!!")
     }
   };
 
@@ -136,6 +162,7 @@ const AdminAddPlayer = () => {
                   onChange={handleNameChange}
                   label="Name Player"
                   validate={(value) => /^[A-Za-z\s]+$/.test(namePlayer)}
+                  placeholder="Vui lòng nhập tên ở đây"
                 />
 
                 <InputAdmin
@@ -143,6 +170,7 @@ const AdminAddPlayer = () => {
                   value={country}
                   onChange={handleCountryChange}
                   label="Country"
+                  placeholder="Vui lòng nhập quốc gia"
                 />
               </div>
               <div className="flex flex-col gap-10">
@@ -152,20 +180,19 @@ const AdminAddPlayer = () => {
                   onChange={handleCityChange}
                   label="City"
                   validate={(value) => /^[A-Za-z1-9\s]+$/.test(city)}
+                  placeholder="Vui lòng nhập thành phố"
                 />
                 <InputAdmin
                   type="text"
                   value={linkInfo}
                   onChange={handleLinkInfoChange}
                   label="Link Info"
+                  placeholder="Vui lòng nhập đường link"
                 />
 
-                <button
-                  onClick={() => clickAddPlayer()}
-                  className="p-3 bg-blue-500 text-white font-bold"
-                >
-                  Add
-                </button>
+                <ButtonAdmin isFormComplete={isFormComplete} color="blue" onClick={clickAddPlayer}>
+                  Add New Player
+                </ButtonAdmin>
               </div>
             </div>
           </div>

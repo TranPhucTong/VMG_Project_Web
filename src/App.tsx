@@ -6,6 +6,8 @@ import mainRoutes, { adminRoutes } from "./routes/routes";
 import LayoutHome from "./layout/layout-home/LayoutHome";
 import logo from "./images/Logo.png";
 import LayoutAdmin from "./layout/layout-admin/LayoutAdmin";
+import { ToastContainer } from "react-toastify";
+
 
 function App() {
   const location = useLocation();
@@ -37,47 +39,28 @@ function App() {
               );
             })}
           </Routes>
+          <ToastContainer />
         </div>
       ) : (
-        <div>
-          <div className="flex justify-center items-center">
-            <a
-              href="https://www.facebook.com/vmg.corona"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="cursor-pointer flex justify-center items-center gap-4 text-white "
-            >
-              <img
-                className="w-[100px] h-[100px] mt-4 rounded-full"
-                src={logo}
-                alt="LOGO"
-              />
-              <h1 className="font-bold text-4xl tracking-wide text-yellow-500">
-                VietNam Mind Game
-              </h1>
-            </a>
+          <div className="w-full h-auto">
+            <Routes>
+              {mainRoutes.map((route, index) => {
+                const Page = route.component;
+                return (
+                  <Route
+                    key={index}
+                    path={route.path}
+                    element={
+                      <LayoutHome>
+                        <Page />
+                      </LayoutHome>
+                    }
+                  ></Route>
+                );
+              })}
+            </Routes>
+            <ToastContainer />
           </div>
-          <div className="w-full px-24 mt-6 pb-24">
-            <div className="bg-white w-full h-auto">
-              <Routes>
-                {mainRoutes.map((route, index) => {
-                  const Page = route.component;
-                  return (
-                    <Route
-                      key={index}
-                      path={route.path}
-                      element={
-                        <LayoutHome>
-                          <Page />
-                        </LayoutHome>
-                      }
-                    ></Route>
-                  );
-                })}
-              </Routes>
-            </div>
-          </div>
-        </div>
       )}
 
       {/* <div className="w-full px-24 mt-6 pb-24">
@@ -100,6 +83,7 @@ function App() {
           </Routes>
         </div>
       </div> */}
+
     </div>
   );
 }
