@@ -13,6 +13,7 @@ interface EventData {
   buyIn: number;
   dateEvent: string;
   entries: number;
+  venueEvent: string;
   resultsPrize: ResultPrize[];
   __v: number;
 }
@@ -23,6 +24,7 @@ const initialState: EventData = {
   buyIn: 0,
   dateEvent: "",
   entries: 0,
+  venueEvent:"",
   resultsPrize: [],
   __v: 0,
 };
@@ -32,12 +34,13 @@ const detailsEventSlice = createSlice({
   initialState: initialState,
   reducers: {
     requireDetailsEvent: (state, action) => {
-      const { _id, nameEvent, buyIn, dateEvent, entries, resultsPrize } = action.payload;
+      const { _id, nameEvent, buyIn, dateEvent, entries,venueEvent, resultsPrize } = action.payload;
       state._id = _id;
       state.nameEvent = nameEvent;
       state.buyIn = buyIn;
       state.dateEvent = dateEvent;
       state.entries = entries;
+      state.venueEvent = venueEvent;
       state.resultsPrize = resultsPrize;
       console.log(state.resultsPrize);
       

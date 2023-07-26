@@ -11,7 +11,16 @@ import { updatePlayer } from '../../../reducers/slices/updatePlayerSlice';
 import playerApi from '../../../api/playerApi';
 import { toast } from 'react-toastify';
 
-
+interface HistoryEventItem {
+    _id: string;
+    nameEvent: string;
+    dateEvent: string;
+    place: number;
+    entries: number;
+    buyin: number;
+    prize: number;
+}
+type ListHistoryEventArray = HistoryEventItem[];
 const AdminUpdatePlayer = () => {
     const navigate = useNavigate();
     const transiData = useSelector(updatePlayer);
@@ -22,7 +31,13 @@ const AdminUpdatePlayer = () => {
     const [country, setCountry] = useState(transiData.country);
     const [city, setCity] = useState(transiData.city);
     const [linkInfo, setLinkInfo] = useState(transiData.linkInfo);
+    const historyEvent : ListHistoryEventArray =  Object.values(transiData.historyEvent) as ListHistoryEventArray;
 
+
+    const tableClass = "table w-full border-collapse table-auto";
+    const tableHeaderClass = "bg-gray-200 text-gray-600 uppercase text-sm leading-normal";
+    const tableRowClass = "border bg-white hover:bg-gray-100";
+    
 
 
     const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -186,9 +201,33 @@ const AdminUpdatePlayer = () => {
                     <div></div>
                 </div>
             </div>
-            <div className='mt-10 bg-black'>
-                <h2 className='text-3xl font-bold tracking-wide gradient-text-vertical '>Tournament Participation History</h2>
-            </div>
+            <div className="p-2 w-full mt-4 bg-white rounded-xl shadow-xl">
+                    <div className='mb-4 text-left'>
+                        <h2 className='text-xl font-bold text-blue-500 uppercase'>events attended</h2>
+                    </div>
+                    <table className={`${tableClass} h-full`}>
+                        <thead>
+                            <tr>
+                                <th className={tableHeaderClass}>STT</th>
+                                <th className={tableHeaderClass}>Event Name</th>
+                                <th className={tableHeaderClass}>Rank</th>
+                                <th className={tableHeaderClass}>Prize</th>
+                                <th className={tableHeaderClass}>Buy In</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {historyEvent.map((event, index) => (
+                                <tr key={index} className={tableRowClass}>
+                                    <td className="border px-4 py-2">{index + 1}</td>
+                                    <td className="border px-4 py-2 underline hover:text-blue-500 cursor-pointer">{event.nameEvent}</td>
+                                    <td className="border px-4 py-2">{event.place}</td>
+                                    <td className="border px-4 py-2">{event.prize}</td>
+                                    <td className="border px-4 py-2">{event.buyin}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
         </div>
     )
 }

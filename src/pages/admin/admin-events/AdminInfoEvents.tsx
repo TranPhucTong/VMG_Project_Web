@@ -22,6 +22,7 @@ const AdminInfoEvents = () => {
     const buyIn = transiData.buyIn;
     const dateEvent = transiData.dateEvent;
     const entries = transiData.entries;
+    const venueEvent = transiData.venueEvent;
     const resultsPrize: ResultsPrizeArray = Object.values(
         transiData.resultsPrize
     ) as ResultsPrizeArray; // Sử dụng 'as ResultsPrizeArray' để khai báo kiểu cho kết quả
@@ -46,7 +47,7 @@ const AdminInfoEvents = () => {
             </div>
             <h1 className="text-4xl font-bold text-center">Event Details</h1>
             <div className='w-full flex justify-center gap-2 items-start mt-8'>
-                <div className='w-[30%] flex flex-col gap-4 bg-white rounded-xl shadow-xl px-6 py-4'>
+                <div className='w-[50%] flex flex-col gap-4 bg-white rounded-xl shadow-xl px-6 py-4'>
                     <div className='flex justify-start items-center'>
                         <h3 className='w-[30%] font-bold text-left text-xl'>ID Event : </h3>
                         <p className='text-xl text-blue-500 font-bold w-[70%] text-right'>{idEvent}</p>
@@ -67,25 +68,27 @@ const AdminInfoEvents = () => {
                         <h3 className='w-[30%] font-bold text-left text-xl'>Entries : </h3>
                         <p className='text-xl text-violet-500 font-bold w-[70%] text-right'>{entries}</p>
                     </div>
+                    <div className='flex justify-start items-center'>
+                        <h3 className='w-[30%] font-bold text-left text-xl'>Venue Event : </h3>
+                        <p className='text-xl text-black font-bold w-[70%] text-right'>{venueEvent}</p>
+                    </div>
 
                 </div>
-                <div className="p-2 w-[70%] bg-white rounded-xl shadow-xl">
+                <div className="p-2 w-[50%] bg-white rounded-xl shadow-xl">
                     <div className='mb-4 text-left'>
-                        <h2 className='text-xl font-bold'>Rank Player In Event</h2>
+                        <h2 className='text-xl font-bold text-teal-500'>Rank Player In Event</h2>
                     </div>
                     <table className={`${tableClass} h-full`}>
                         <thead>
                             <tr>
-                                <th className={tableHeaderClass}>ID</th>
                                 <th className={tableHeaderClass}>Player Name</th>
-                                <th className={tableHeaderClass}>Place</th>
+                                <th className={tableHeaderClass}>Rank</th>
                                 <th className={tableHeaderClass}>Prize</th>
                             </tr>
                         </thead>
                         <tbody>
                             {resultsPrize.map((event, index) => (
                                 <tr key={index} className={tableRowClass}>
-                                    <td className="border px-4 py-2">{event._id}</td>
                                     <td className="border px-4 py-2">{event.playerName}</td>
                                     <td className="border px-4 py-2">{event.place}</td>
                                     <td className="border px-4 py-2">{event.prize}</td>

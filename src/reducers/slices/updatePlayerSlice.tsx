@@ -21,7 +21,7 @@ const updatePlayerSlice = createSlice({
             state.country = action.payload.country
             state.linkInfo = action.payload.linkInfo
             state.image = action.payload.avatarImage
-            state.historyEvent = action.payload.historyEvent
+            state.historyEvent = action.payload.historyEvent       
         }
     }
 })

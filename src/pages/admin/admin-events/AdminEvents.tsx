@@ -29,6 +29,7 @@ interface TableRow {
 interface EventRow {
   _id: string;
   nameEvent: string;
+  venueEvent: string;
   buyIn: number;
   dateEvent: string;
   entries: number;
@@ -144,19 +145,32 @@ const AdminEvents = () => {
 
   const handleAddPlayer = () => {
     if (selectedPlayer && place && prize) {
-      setNewArray((prevArray) => [
-        ...prevArray,
-        {
-          _id: selectedPlayer._id,
-          playerName: selectedPlayer.playerName,
-          place: Number(place),
-          prize: Number(prize),
-        },
-      ]);
-      setSelectedPlayer(null);
-      setPlace("");
-      setPrize("");
+      // Kiểm tra người chơi đã tồn tại trong newArray chưa
+      const isPlayerExist = newArray.find((player) => player._id === selectedPlayer._id);
+  
+      if (isPlayerExist) {
+        // Nếu người chơi đã tồn tại, thông báo đã có
+        toast.success("Người chơi đã tồn tại trong danh sách!")
+      } else {
+        // Nếu người chơi chưa tồn tại, thêm người chơi vào newArray
+        setNewArray((prevArray) => [
+          ...prevArray,
+          {
+            _id: selectedPlayer._id,
+            playerName: selectedPlayer.playerName,
+            place: Number(place),
+            prize: Number(prize),
+          },
+        ]);
+        setSelectedPlayer(null);
+        setPlace("");
+        setPrize("");
+      }
     }
+  };
+
+  const handleRemovePlayer = (playerIdToRemove : string) => {
+    setNewArray((prevArray) => prevArray.filter((player) => player._id !== playerIdToRemove));
   };
 
   const sortedArray = [...newArray].sort((a, b) => a.place - b.place);
@@ -352,6 +366,9 @@ const AdminEvents = () => {
                   Entries
                 </th>
                 <th className="px-[16px] py-[20px] text-center min-w-[80px]">
+                  Venue Event
+                </th>
+                <th className="px-[16px] py-[20px] text-center min-w-[80px]">
                   Options
                 </th>
               </tr>
@@ -387,6 +404,9 @@ const AdminEvents = () => {
                   </td>
                   <td className="px-[16px] py-[20px] text-center min-w-[80px]">
                     {row.entries}
+                  </td>
+                  <td className="px-[16px] py-[20px] text-center min-w-[80px]">
+                    {row.venueEvent}
                   </td>
                   <td className="px-[16px] py-[20px] text-center min-w-[80px] relative">
                     <FontAwesomeIcon
@@ -494,7 +514,7 @@ const AdminEvents = () => {
               {/* Form nhập thông tin người chơi */}
 
               <div className='flex gap-3'>
-                <label className='font-bold' htmlFor="place-input">Place:</label>
+                <label className='font-bold' htmlFor="place-input">Rank:</label>
                 <input
                   className='border p-1'
                   type="number"
@@ -528,7 +548,7 @@ const AdminEvents = () => {
                     <tr>
                       <th className={tableHeaderClass}>ID</th>
                       <th className={tableHeaderClass}>Player Name</th>
-                      <th className={tableHeaderClass}>Place</th>
+                      <th className={tableHeaderClass}>Rank</th>
                       <th className={tableHeaderClass}>Prize</th>
                     </tr>
                   </thead>
@@ -539,6 +559,14 @@ const AdminEvents = () => {
                         <td className="border px-4 py-2">{player.playerName}</td>
                         <td className="border px-4 py-2">{player.place}</td>
                         <td className="border px-4 py-2">{player.prize}</td>
+                        <td className="border px-4 py-2">
+                          <button
+                            className="px-2 py-1 rounded-md bg-red-500 text-white"
+                            onClick={() => handleRemovePlayer(player._id)}
+                          >
+                            Remove
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>

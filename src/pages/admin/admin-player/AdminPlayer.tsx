@@ -27,7 +27,7 @@ interface TableRow {
   country: string;
   city: string;
   historyEvent: [];
-  rank:number;
+  rank: number;
 }
 const AdminPlayer = () => {
   const navigate = useNavigate();
@@ -300,7 +300,7 @@ const AdminPlayer = () => {
                       className="rounded-full object-cover w-10 h-10"
                       alt=""
                     />
-                    <a title="Info player" href={row.linkInfo}>
+                    <a title="Info player" onClick={() => handleSelectUpdatePlayer(row)}>
                       {row.playerName}
                     </a>
                   </td>
