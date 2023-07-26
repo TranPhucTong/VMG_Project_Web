@@ -46,6 +46,8 @@ const Navbar = () => {
     setSelectedItem(currentItem ? currentItem.name : "");
     if (location.pathname.includes("/admin/player")) {
       setSelectedItem("Player");
+    } else if(location.pathname.includes("/admin/events")){
+      setSelectedItem("Events")
     }
   }, [location]);
 

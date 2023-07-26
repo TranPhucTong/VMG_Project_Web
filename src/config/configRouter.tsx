@@ -8,7 +8,8 @@ const configRoutes = {
   adminPlayer: "/admin/player",
   adminAddPlayer: "/admin/player-add",
   adminUpdatePlayer: "/admin/player-update",
-  adminEvents: "/admin/events"
+  adminEvents: "/admin/events",
+  adminEventsDetails: "/admin/events-details"
 };
 
 export default configRoutes;

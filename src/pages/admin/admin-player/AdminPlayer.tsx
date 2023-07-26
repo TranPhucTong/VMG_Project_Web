@@ -26,10 +26,8 @@ interface TableRow {
   vpoyPoint: number;
   country: string;
   city: string;
-  // rankInCountry: number;
-  // rankInCity: number;
-  eventJoin: [];
   historyEvent: [];
+  rank:number;
 }
 const AdminPlayer = () => {
   const navigate = useNavigate();
@@ -76,8 +74,6 @@ const AdminPlayer = () => {
     } else {
       setData(res.data.players);
     }
-    console.log(selectValue);
-
   };
   useEffect(() => {
     fetchData();
@@ -92,7 +88,7 @@ const AdminPlayer = () => {
     return () => {
       document.removeEventListener("click", handleOutsideClick);
     };
-  }, [selectValue]);
+  }, [selectValue, data]);
 
   const handleSearch = async () => {
     if (searchType === "city" && searchTerm !== "") {
