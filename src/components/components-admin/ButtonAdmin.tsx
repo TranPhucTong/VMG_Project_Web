@@ -29,7 +29,7 @@ const ButtonAdmin: React.FC<ButtonProps> = ({ onClick, color, icon, children, is
   return (
     <button
       onClick={onClick}
-      className={`flex items-center justify-center px-4 py-2 rounded-md hover:opacity-90 duration-200 ease-in-out transition-all shadow ${getButtonColor()}`}
+      className={`flex items-center justify-center px-4 py-2 rounded-md hover:opacity-90 duration-200 ease-in-out transition-all shadow ${getButtonColor()} ${isFormComplete ? "" : "opacity-50 pointer-events-none disabled"}`}
     >
       {icon && <span className={`${getIconClasses()} material-icons`}>{icon}</span>}
       {children}

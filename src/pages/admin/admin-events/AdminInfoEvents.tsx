@@ -48,24 +48,24 @@ const AdminInfoEvents = () => {
             <div className='w-full flex justify-center gap-2 items-start mt-8'>
                 <div className='w-[30%] flex flex-col gap-4 bg-white rounded-xl shadow-xl px-6 py-4'>
                     <div className='flex justify-start items-center'>
-                        <h3 className='w-[30%] font-bold text-left text-2xl'>ID Event : </h3>
-                        <p className='text-2xl text-blue-500 font-bold w-[70%] text-right'>{idEvent}</p>
+                        <h3 className='w-[30%] font-bold text-left text-xl'>ID Event : </h3>
+                        <p className='text-xl text-blue-500 font-bold w-[70%] text-right'>{idEvent}</p>
                     </div>
                     <div className='flex justify-start items-center'>
-                        <h3 className='w-[30%] font-bold text-left text-2xl'>Name Event : </h3>
-                        <p className='text-2xl text-red-500 font-bold w-[70%] text-right'>{nameEvent}</p>
+                        <h3 className='w-[30%] font-bold text-left text-xl'>Name Event : </h3>
+                        <p className='text-xl text-red-500 font-bold w-[70%] text-right'>{nameEvent}</p>
                     </div>
                     <div className='flex justify-start items-center'>
-                        <h3 className='w-[30%] font-bold text-left text-2xl'>Buy In : </h3>
-                        <p className='text-2xl text-green-500 font-bold w-[70%] text-right'>{buyIn}</p>
+                        <h3 className='w-[30%] font-bold text-left text-xl'>Buy In : </h3>
+                        <p className='text-xl text-green-500 font-bold w-[70%] text-right'>{buyIn} $</p>
                     </div>
                     <div className='flex justify-start items-center'>
-                        <h3 className='w-[30%] font-bold text-left text-2xl'>Date Event : </h3>
-                        <p className='text-2xl text-yellow-500 font-bold w-[70%] text-right'>{dateEvent}</p>
+                        <h3 className='w-[30%] font-bold text-left text-xl'>Date Event : </h3>
+                        <p className='text-xl text-yellow-500 font-bold w-[70%] text-right'>{dateEvent}</p>
                     </div>
                     <div className='flex justify-start items-center'>
-                        <h3 className='w-[30%] font-bold text-left text-2xl'>Entries : </h3>
-                        <p className='text-2xl text-violet-500 font-bold w-[70%] text-right'>{entries}</p>
+                        <h3 className='w-[30%] font-bold text-left text-xl'>Entries : </h3>
+                        <p className='text-xl text-violet-500 font-bold w-[70%] text-right'>{entries}</p>
                     </div>
 
                 </div>
