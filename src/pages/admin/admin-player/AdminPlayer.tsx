@@ -11,11 +11,12 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState, useRef } from "react";
 import playerApi from "../../../api/playerApi";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { updateRequirePlayer } from "../../../reducers/slices/updatePlayerSlice";
 import { useDispatch } from "react-redux";
 import InputAdmin from "../../../components/components-admin/InputAdmin";
 import { toast } from "react-toastify";
+import configRoutes from "../../../config/configRouter";
 
 interface TableRow {
   _id: number;
@@ -30,6 +31,8 @@ interface TableRow {
   rank: number;
 }
 const AdminPlayer = () => {
+
+
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
@@ -88,7 +91,7 @@ const AdminPlayer = () => {
     return () => {
       document.removeEventListener("click", handleOutsideClick);
     };
-  }, [selectValue, data]);
+  }, [selectValue]);
 
   const handleSearch = async () => {
     if (searchType === "city" && searchTerm !== "") {
@@ -116,6 +119,7 @@ const AdminPlayer = () => {
       setCurrentPage(1); // Cập nhật currentPage thành trang 1 khi không có tìm kiếm
     }
   }
+  
 
   const cleanSearch = () => {
     setSelectValue("totalWin");
@@ -151,8 +155,9 @@ const AdminPlayer = () => {
 
   const dispatch = useDispatch();
   const handleSelectUpdatePlayer = (player: any) => {
-    dispatch(updateRequirePlayer(player));
-    navigate("/admin/player-update");
+    // dispatch(updateRequirePlayer(player));
+    // navigate(`/admin/player-update`);
+    navigate(`${configRoutes.adminUpdatePlayer}/${player._id}`);
   };
 
   return (

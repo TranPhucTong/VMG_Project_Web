@@ -9,6 +9,8 @@ import { toast } from 'react-toastify';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { requireDetailsEvent } from '../../../reducers/slices/detailEventSlice';
+import configRoutes from '../../../config/configRouter';
+import OrganizationalCheckbox from '../../../components/components-admin/OrganizationalCheckbox';
 
 
 
@@ -56,6 +58,18 @@ const AdminEvents = () => {
 
   const [dataPlayer, setDataPlayer] = useState<TableRow[]>([]);
   const [dataEvent, setDataEvent] = useState<EventRow[]>([]);
+
+  const [selectedPokerRoom, setSelectedPokerRoom] = useState("");
+  const [selectedPokerTour, setSelectedPokerTour] = useState("");
+  const handlePokerRoomSelectChange = (selectedValue: string) => {
+    setSelectedPokerRoom(selectedValue);
+  };
+
+  const handlePokerTourSelectChange = (selectedValue: string) => {
+    setSelectedPokerTour(selectedValue);
+  };
+
+  
 
 
   const [newArray, setNewArray] = useState<{
@@ -147,7 +161,7 @@ const AdminEvents = () => {
     if (selectedPlayer && place && prize) {
       // Kiểm tra người chơi đã tồn tại trong newArray chưa
       const isPlayerExist = newArray.find((player) => player._id === selectedPlayer._id);
-  
+
       if (isPlayerExist) {
         // Nếu người chơi đã tồn tại, thông báo đã có
         toast.success("Người chơi đã tồn tại trong danh sách!")
@@ -169,7 +183,7 @@ const AdminEvents = () => {
     }
   };
 
-  const handleRemovePlayer = (playerIdToRemove : string) => {
+  const handleRemovePlayer = (playerIdToRemove: string) => {
     setNewArray((prevArray) => prevArray.filter((player) => player._id !== playerIdToRemove));
   };
 
@@ -234,7 +248,8 @@ const AdminEvents = () => {
   const navigate = useNavigate();
   const handleSelectDetailsEvent = (event: any) => {
     dispatch(requireDetailsEvent(event));
-    navigate("/admin/events-details");
+    // navigate("/admin/events-details");
+    navigate(`${configRoutes.adminEventsDetails}/${event._id}`);
   };
 
   return (
@@ -279,6 +294,16 @@ const AdminEvents = () => {
                 label="Date Event"
                 placeholder="Vui lòng nhập ở đây"
               />
+              <div
+                onClick={() => setShowAddPlayers(true)}
+                className="flex w-[30%] mt-6 gap-2 cursor-pointer justify-center items-center px-2 py-1 rounded-xl border-gray-400 border-[1px] hover:bg-blue-500 hover:text-white transition-colors ease-in-out duration-200"
+              >
+                <FontAwesomeIcon
+                  className="text-green-400"
+                  icon={faPlusCircle}
+                />
+                <button>Add Players</button>
+              </div>
             </div>
 
           </div>
@@ -300,16 +325,12 @@ const AdminEvents = () => {
                 // validate={(value) => /^[A-Za-z\s]+$/.test(namePlayer)}
                 placeholder="Vui lòng nhập ở đây"
               />
-              <div
-                onClick={() => setShowAddPlayers(true)}
-                className="flex w-[30%] mt-7 gap-2 cursor-pointer justify-center items-center px-2 py-1 rounded-xl border-gray-400 border-[1px] hover:bg-blue-500 hover:text-white transition-colors ease-in-out duration-200"
-              >
-                <FontAwesomeIcon
-                  className="text-green-400"
-                  icon={faPlusCircle}
-                />
-                <button>Add Players</button>
+              <div className=''>
+                <OrganizationalCheckbox onPokerRoomSelectChange={handlePokerRoomSelectChange}
+                  onPokerTourSelectChange={handlePokerTourSelectChange} />
               </div>
+
+
             </div>
           </div>
 
@@ -396,13 +417,13 @@ const AdminEvents = () => {
                   <td onClick={() => handleSelectDetailsEvent(row)} className="px-[16px] flex justify-center items-center gap-2 py-[20px] text-center min-w-[80px] underline cursor-pointer hover:text-blue-500 font-medium transition-all duration-100 ease-in-out">
                     {row.nameEvent}
                   </td>
-                  <td className="px-[16px] py-[20px] text-center min-w-[80px]">
-                    {row.buyIn}
+                  <td className="px-[16px] py-[20px] text-center font-bold text-blue-400 min-w-[80px]">
+                    {(row.buyIn).toLocaleString()} <span className='font-bold text-yellow-500'>$</span>
                   </td>
                   <td className="px-[16px] py-[20px] text-center min-w-[80px]">
                     {row.dateEvent}
                   </td>
-                  <td className="px-[16px] py-[20px] text-center min-w-[80px]">
+                  <td className="px-[16px] py-[20px] text-center font-bold text-green-400 min-w-[80px]">
                     {row.entries}
                   </td>
                   <td className="px-[16px] py-[20px] text-center min-w-[80px]">

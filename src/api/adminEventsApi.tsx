@@ -5,6 +5,9 @@ const eventApi = {
   getEvent: () => {
     return mainAxios.get(`${url}`);
   },
+  getEventById: (id: string) => {
+    return mainAxios.get(`${url}/${id}`);
+  },
   createEvent: (data: Object) => {
     return mainAxios.post(`${url}`, { data });
   },

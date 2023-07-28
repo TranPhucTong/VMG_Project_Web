@@ -5,6 +5,9 @@ import AdminHome from "../pages/admin/admin-home/AdminHome";
 import AdminAddPlayer from "../pages/admin/admin-player/AdminAddPlayer";
 import AdminPlayer from "../pages/admin/admin-player/AdminPlayer";
 import AdminUpdatePlayer from "../pages/admin/admin-player/AdminUpdatePlayer";
+import AdminPokerRoom from "../pages/admin/admin-poker-room/AdminPokerRoom";
+import AdminPokerTour from "../pages/admin/admin-poker-tour/AdminPokerTour";
+import AdminTournaments from "../pages/admin/admin-tournaments/AdminTournaments";
 import Home from "../pages/home/Home";
 import LiveEvent from "../pages/live_event/LiveEvent";
 import News from "../pages/news/News";
@@ -37,7 +40,7 @@ export const adminRoutes = [
     component: AdminAddPlayer,
   },
   {
-    path: configRoutes.adminUpdatePlayer,
+    path: `${configRoutes.adminUpdatePlayer}/:id`,
     component: AdminUpdatePlayer,
   },
   {
@@ -45,8 +48,20 @@ export const adminRoutes = [
     component: AdminEvents,
   },
   {
-    path: configRoutes.adminEventsDetails,
+    path:`${configRoutes.adminEventsDetails}/:id`,
     component: AdminInfoEvents,
+  },
+  {
+    path: configRoutes.adminTournaments,
+    component: AdminTournaments,
+  },
+  {
+    path: configRoutes.adminPokerTour,
+    component: AdminPokerTour,
+  },
+  {
+    path: configRoutes.adminPokerRoom,
+    component: AdminPokerRoom,
   },
 ];
 

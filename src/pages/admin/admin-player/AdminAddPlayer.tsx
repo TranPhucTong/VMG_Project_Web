@@ -10,6 +10,7 @@ import ButtonAdmin from "../../../components/components-admin/ButtonAdmin";
 import { toast } from "react-toastify";
 import Select from 'react-select';
 import axios from 'axios';
+import imgPlayerDefauth from "../../../images/player_img.png"
 
 interface CountryOption {
   value: string;
@@ -37,7 +38,7 @@ const AdminAddPlayer = () => {
   const navigate = useNavigate();
 
 
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(imgPlayerDefauth);
   const [isFormComplete, setIsFormComplete] = useState(false);
 
 

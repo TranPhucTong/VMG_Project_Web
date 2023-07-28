@@ -9,7 +9,10 @@ const configRoutes = {
   adminAddPlayer: "/admin/player-add",
   adminUpdatePlayer: "/admin/player-update",
   adminEvents: "/admin/events",
-  adminEventsDetails: "/admin/events-details"
+  adminEventsDetails: "/admin/events-details",
+  adminTournaments: "/admin/tournaments",
+  adminPokerTour: "/admin/poker-tour",
+  adminPokerRoom: "/admin/poker-room",
 };
 
 export default configRoutes;

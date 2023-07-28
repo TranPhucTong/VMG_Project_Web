@@ -5,6 +5,9 @@ const playerApi = {
   getPlayer: () => {
     return mainAxios.get(`${url}`);
   },
+  getPlayerById: (id: string) => {
+    return mainAxios.get(`${url}/${id}`);
+  },
   getPlayerSortVpoy:() => {
     return mainAxios.get(`${url}?vpoyPoint=true`);
   },

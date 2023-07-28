@@ -4,6 +4,7 @@ import React from 'react'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { detailsEvent } from '../../../reducers/slices/detailEventSlice';
+import configRoutes from '../../../config/configRouter'
 
 
 interface ResultPrizeItem {
@@ -23,21 +24,32 @@ const AdminInfoEvents = () => {
     const dateEvent = transiData.dateEvent;
     const entries = transiData.entries;
     const venueEvent = transiData.venueEvent;
+    const totalPrize = (entries * buyIn).toLocaleString();
     const resultsPrize: ResultsPrizeArray = Object.values(
         transiData.resultsPrize
     ) as ResultsPrizeArray; // Sử dụng 'as ResultsPrizeArray' để khai báo kiểu cho kết quả
 
     // Bây giờ bạn có thể sử dụng resultsPrizeArray như một mảng thông thường
-    console.log(resultsPrize);
 
     const tableClass = "table w-full border-collapse table-auto";
     const tableHeaderClass = "bg-gray-200 text-gray-600 uppercase text-sm leading-normal";
     const tableRowClass = "border bg-white hover:bg-gray-100";
+
+
+    const handleSelectUpdatePlayer = (player: any) => {
+        // dispatch(updateRequirePlayer(player));
+        // navigate(`/admin/player-update`);
+        navigate(`${configRoutes.adminUpdatePlayer}/${player._id}`);
+    };
+
+    const handleGoBack = () => {
+        window.history.back();
+    };
     return (
         <div className="">
             <div className="flex flex-col gap-1">
                 <div
-                    onClick={() => navigate("/admin/events")}
+                    onClick={handleGoBack}
                     className={`flex text-base text-gray-500 font-medium gap-2 items-center cursor-pointer hover:-translate-x-1 transform transition-transform 
           `}
                 >
@@ -68,15 +80,21 @@ const AdminInfoEvents = () => {
                         <h3 className='w-[30%] font-bold text-left text-xl'>Entries : </h3>
                         <p className='text-xl text-violet-500 font-bold w-[70%] text-right'>{entries}</p>
                     </div>
-                    <div className='flex justify-start items-center'>
+                    <div className='flex justify-start items-center pb-2 border-b-[1px] border-gray-400'>
                         <h3 className='w-[30%] font-bold text-left text-xl'>Venue Event : </h3>
                         <p className='text-xl text-black font-bold w-[70%] text-right'>{venueEvent}</p>
+                    </div>
+                    <div className='flex justify-start items-center'>
+                        <h3 className='w-[30%] font-bold text-blue-400  text-left text-xl'>
+                            Total Prize :</h3>
+                        <p className='text-xl font-bold w-[70%] text-blue-400 text-right'>{totalPrize}$</p>
                     </div>
 
                 </div>
                 <div className="p-2 w-[50%] bg-white rounded-xl shadow-xl">
                     <div className='mb-4 text-left'>
-                        <h2 className='text-xl font-bold text-teal-500'>Rank Player In Event</h2>
+                        <h2 className='text-xl font-bold text-teal-500'>
+                            Competition Results</h2>
                     </div>
                     <table className={`${tableClass} h-full`}>
                         <thead>
@@ -89,9 +107,9 @@ const AdminInfoEvents = () => {
                         <tbody>
                             {resultsPrize.map((event, index) => (
                                 <tr key={index} className={tableRowClass}>
-                                    <td className="border px-4 py-2">{event.playerName}</td>
+                                    <td onClick={() => handleSelectUpdatePlayer(event)} className="border px-4 py-2 cursor-pointer underline hover:text-blue-500">{event.playerName}</td>
                                     <td className="border px-4 py-2">{event.place}</td>
-                                    <td className="border px-4 py-2">{event.prize}</td>
+                                    <td className="border px-4 py-2">{(event.prize).toLocaleString()}$</td>
                                 </tr>
                             ))}
                         </tbody>

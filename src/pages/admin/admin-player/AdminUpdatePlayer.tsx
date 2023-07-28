@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import InputAdmin from '../../../components/components-admin/InputAdmin';
@@ -21,23 +21,46 @@ interface HistoryEventItem {
     prize: number;
 }
 type ListHistoryEventArray = HistoryEventItem[];
+
+
+
+interface PlayerID {
+    _id: number;
+    playerName: string;
+    linkInfo: string;
+    avatarImage: string;
+    totalWinnings: number;
+    vpoyPoint: number;
+    country: string;
+    city: string;
+    historyEvent: [];
+    rank: number;
+}
 const AdminUpdatePlayer = () => {
+    const {id} = useParams();
+    const [dataPlayerID, setDataPlayerID] = useState<PlayerID | null>(null);
+
+
+
+
+
     const navigate = useNavigate();
     const transiData = useSelector(updatePlayer);
-    const idPlayer = transiData.id;
-    const [selectedImage, setSelectedImage] = useState<string | null>(transiData.image);
+    // const idPlayer = transiData.id;
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
     const [isFormComplete, setIsFormComplete] = useState(false);
-    const [namePlayer, setNamePlayer] = useState(transiData.playerName);
-    const [country, setCountry] = useState(transiData.country);
-    const [city, setCity] = useState(transiData.city);
-    const [linkInfo, setLinkInfo] = useState(transiData.linkInfo);
-    const historyEvent : ListHistoryEventArray =  Object.values(transiData.historyEvent) as ListHistoryEventArray;
+    const [namePlayer, setNamePlayer] = useState("");
+    const [country, setCountry] = useState("");
+    const [city, setCity] = useState("");
+    const [linkInfo, setLinkInfo] = useState("");
+    const historyEvent: ListHistoryEventArray = (dataPlayerID?.historyEvent ?? []) as ListHistoryEventArray;
 
 
     const tableClass = "table w-full border-collapse table-auto";
     const tableHeaderClass = "bg-gray-200 text-gray-600 uppercase text-sm leading-normal";
     const tableRowClass = "border bg-white hover:bg-gray-100";
-    
+
 
 
     const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -69,6 +92,15 @@ const AdminUpdatePlayer = () => {
         }
     };
 
+    const fetchData = async () => {
+        if (typeof id === 'string') {
+            const res = await playerApi.getPlayerById(id);
+            setDataPlayerID(res.data.player);
+        } else {
+            alert("Không tìm thấy ID !!!")
+        }
+    }
+
     useEffect(() => {
         if (namePlayer !== "" && country !== "" && city !== "" && linkInfo !== "" && selectedImage !== "") {
             setIsFormComplete(true);
@@ -76,6 +108,25 @@ const AdminUpdatePlayer = () => {
             setIsFormComplete(false);
         }
     }, [namePlayer, country, city, linkInfo, selectedImage]);
+
+    useEffect(() => {
+        fetchData();
+    }, [id]); // Gọi fetchData khi id thay đổi
+
+    useEffect(() => {
+        if (dataPlayerID) {
+            setSelectedImage(dataPlayerID.avatarImage);
+            setNamePlayer(dataPlayerID.playerName);
+            setCountry(dataPlayerID.country);
+            setLinkInfo(dataPlayerID.linkInfo);
+            setCity(dataPlayerID.city);
+        }
+    }, [dataPlayerID]);
+
+    // Xử lý trường hợp chưa có dữ liệu hoặc đang tải dữ liệu
+    if (!dataPlayerID) {
+        return <div>Loading...</div>;
+    }
 
     const handleNameChange = (value: string | number) => {
         setNamePlayer(String(value));
@@ -98,22 +149,27 @@ const AdminUpdatePlayer = () => {
             city: city,
             linkInfo: linkInfo,
         };
-
-        try {
-            const response = await playerApi.updatePlayer(dataUpdatePlayer, idPlayer);
-            console.log("Thành công", response);
-            toast.success("Cập nhật thông tin người chơi thành công");
-            navigate("/admin/player");
-        } catch (error) {
-            console.log("Thất bại", error);
-            toast.error("Thất bại. Hãy kiểm tra và thử lại!!!")
+        if (typeof id === 'string') {
+            try {
+                const response = await playerApi.updatePlayer(dataUpdatePlayer, id);
+                console.log("Thành công", response);
+                toast.success("Cập nhật thông tin người chơi thành công");
+                navigate("/admin/player");
+            } catch (error) {
+                console.log("Thất bại", error);
+                toast.error("Thất bại. Hãy kiểm tra và thử lại!!!")
+            }
         }
     }
+
+    const handleGoBack = () => {
+        window.history.back();
+    };
     return (
         <div>
             <div className="flex flex-col gap-1">
                 <div
-                    onClick={() => navigate("/admin/player")}
+                    onClick={handleGoBack}
                     className={`flex text-base text-gray-500 font-medium gap-2 items-center cursor-pointer hover:-translate-x-1 transform transition-transform 
           `}
                 >
@@ -202,32 +258,32 @@ const AdminUpdatePlayer = () => {
                 </div>
             </div>
             <div className="p-2 w-full mt-4 bg-white rounded-xl shadow-xl">
-                    <div className='mb-4 text-left'>
-                        <h2 className='text-xl font-bold text-blue-500 uppercase'>events attended</h2>
-                    </div>
-                    <table className={`${tableClass} h-full`}>
-                        <thead>
-                            <tr>
-                                <th className={tableHeaderClass}>STT</th>
-                                <th className={tableHeaderClass}>Event Name</th>
-                                <th className={tableHeaderClass}>Rank</th>
-                                <th className={tableHeaderClass}>Prize</th>
-                                <th className={tableHeaderClass}>Buy In</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {historyEvent.map((event, index) => (
-                                <tr key={index} className={tableRowClass}>
-                                    <td className="border px-4 py-2">{index + 1}</td>
-                                    <td className="border px-4 py-2 underline hover:text-blue-500 cursor-pointer">{event.nameEvent}</td>
-                                    <td className="border px-4 py-2">{event.place}</td>
-                                    <td className="border px-4 py-2">{event.prize}</td>
-                                    <td className="border px-4 py-2">{event.buyin}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                <div className='mb-4 text-left'>
+                    <h2 className='text-xl font-bold text-blue-500 uppercase'>events attended</h2>
                 </div>
+                <table className={`${tableClass} h-full`}>
+                    <thead>
+                        <tr>
+                            <th className={tableHeaderClass}>STT</th>
+                            <th className={tableHeaderClass}>Event Name</th>
+                            <th className={tableHeaderClass}>Rank</th>
+                            <th className={tableHeaderClass}>Prize</th>
+                            <th className={tableHeaderClass}>Buy In</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {historyEvent.map((event, index) => (
+                            <tr key={index} className={tableRowClass}>
+                                <td className="border px-4 py-2">{index + 1}</td>
+                                <td className="border px-4 py-2 underline hover:text-blue-500 cursor-pointer">{event.nameEvent}</td>
+                                <td className="border px-4 py-2">{event.place}</td>
+                                <td className="border px-4 py-2">{event.prize}</td>
+                                <td className="border px-4 py-2">{event.buyin}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     )
 }
