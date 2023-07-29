@@ -69,7 +69,7 @@ const AdminEvents = () => {
     setSelectedPokerTour(selectedValue);
   };
 
-  
+
 
 
   const [newArray, setNewArray] = useState<{
@@ -178,7 +178,7 @@ const AdminEvents = () => {
         ]);
         setSelectedPlayer(null);
         setPlace("");
-        setPrize("");
+        setPrize(0);
       }
     }
   };
@@ -326,8 +326,7 @@ const AdminEvents = () => {
                 placeholder="Vui lòng nhập ở đây"
               />
               <div className=''>
-                <OrganizationalCheckbox onPokerRoomSelectChange={handlePokerRoomSelectChange}
-                  onPokerTourSelectChange={handlePokerTourSelectChange} />
+                <OrganizationalCheckbox />
               </div>
 
 
@@ -548,7 +547,7 @@ const AdminEvents = () => {
               <div className='flex gap-3'>
                 <label className='font-bold' htmlFor="prize-input">Prize:</label>
                 <input
-                  type="number"
+                  type="text"
                   className='border p-1'
                   id="prize-input"
                   value={prize}
@@ -579,7 +578,7 @@ const AdminEvents = () => {
                         <td className="border px-4 py-2">{player._id}</td>
                         <td className="border px-4 py-2">{player.playerName}</td>
                         <td className="border px-4 py-2">{player.place}</td>
-                        <td className="border px-4 py-2">{player.prize}</td>
+                        <td className="border px-4 py-2">{(player.prize).toLocaleString()}$</td>
                         <td className="border px-4 py-2">
                           <button
                             className="px-2 py-1 rounded-md bg-red-500 text-white"

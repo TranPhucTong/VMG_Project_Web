@@ -165,6 +165,28 @@ const AdminUpdatePlayer = () => {
     const handleGoBack = () => {
         window.history.back();
     };
+
+
+    const getRankFormat = (rank : number) => {
+        const suffixes = ["th", "st", "nd", "rd"];
+        const lastTwoDigits = rank % 100;
+        const lastDigit = rank % 10;
+      
+        let suffixIndex = 0;
+        if (lastTwoDigits >= 11 && lastTwoDigits <= 13) {
+          suffixIndex = 0;
+        } else if (lastDigit === 1) {
+          suffixIndex = 1;
+        } else if (lastDigit === 2) {
+          suffixIndex = 2;
+        } else if (lastDigit === 3) {
+          suffixIndex = 3;
+        } else {
+          suffixIndex = 0;
+        }
+      
+        return `${rank}${suffixes[suffixIndex]}`;
+      };
     return (
         <div>
             <div className="flex flex-col gap-1">
@@ -275,10 +297,10 @@ const AdminUpdatePlayer = () => {
                         {historyEvent.map((event, index) => (
                             <tr key={index} className={tableRowClass}>
                                 <td className="border px-4 py-2">{index + 1}</td>
-                                <td className="border px-4 py-2 underline hover:text-blue-500 cursor-pointer">{event.nameEvent}</td>
-                                <td className="border px-4 py-2">{event.place}</td>
-                                <td className="border px-4 py-2">{event.prize}</td>
-                                <td className="border px-4 py-2">{event.buyin}</td>
+                                <td className="border px-4 py-2 underline hover:text-blue-500 cursor-pointer font-bold">{event.nameEvent}</td>
+                                <td className="border px-4 py-2 font-bold"> <span className='text-blue-500'>{getRankFormat(event.place)}</span> <span className='text-gray-500'>/</span> <span className='text-green-500'>{event.entries}</span></td>
+                                <td className="border px-4 py-2">{(event.prize).toLocaleString()}$</td>
+                                <td className="border px-4 py-2">{(event.buyin).toLocaleString()}$</td>
                             </tr>
                         ))}
                     </tbody>
