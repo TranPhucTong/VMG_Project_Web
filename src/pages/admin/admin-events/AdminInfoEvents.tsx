@@ -1,10 +1,11 @@
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { detailsEvent } from '../../../reducers/slices/detailEventSlice';
 import configRoutes from '../../../config/configRouter'
+import eventApi from '../../../api/adminEventsApi'
 
 
 interface ResultPrizeItem {
@@ -15,19 +16,57 @@ interface ResultPrizeItem {
 }
 type ResultsPrizeArray = ResultPrizeItem[];
 
+interface EventID {
+    _id: number;
+    nameEvent: string;
+    buyIn: number;
+    venueEvent: string;
+    dateEvent: string;
+    entries: number;
+    pokerRoom: PokerRooms;
+    pokerTour: PokerTours;
+    resultsPrize: []
+}
+
+interface PokerRooms {
+    _id: string;
+    name: string;
+    shortName: string;
+    logo: string;
+    avatar: string;
+    description: string;
+    Adress: string;
+}
+
+interface PokerTours {
+    _id: string;
+    name: string;
+    shortName: string;
+    logo: string;
+    avatar: string;
+    description: string;
+}
+
 const AdminInfoEvents = () => {
+    const { id } = useParams();
+    const [dataEventID, setDataEventID] = useState<EventID | null>(null);
+
+
     const navigate = useNavigate();
-    const transiData = useSelector(detailsEvent);
-    const idEvent = transiData._id;
-    const nameEvent = transiData.nameEvent;
-    const buyIn = transiData.buyIn;
-    const dateEvent = transiData.dateEvent;
-    const entries = transiData.entries;
-    const venueEvent = transiData.venueEvent;
+    // const transiData = useSelector(detailsEvent);
+    // const idEvent = transiData._id;
+    const [nameEvent, setNameEvent] = useState("");
+    const [buyIn, setBuyIn] = useState<number>(0);
+    const [dateEvent, setDateEvent] = useState("");
+    const [entries, setEntries] = useState<number>(0);
+    const [venueEvent, setVenueEvent] = useState("");
+    const [pokerRoom, setPokerRoom] = useState<PokerRooms | null>(null);
+    const [pokerTour, setPokerTour] = useState<PokerTours | null>(null);
+    const resultsPrize: ResultsPrizeArray = (dataEventID?.resultsPrize ?? []) as ResultsPrizeArray;
+
+
+
     const totalPrize = (entries * buyIn).toLocaleString();
-    const resultsPrize: ResultsPrizeArray = Object.values(
-        transiData.resultsPrize
-    ) as ResultsPrizeArray; // Sử dụng 'as ResultsPrizeArray' để khai báo kiểu cho kết quả
 
     // Bây giờ bạn có thể sử dụng resultsPrizeArray như một mảng thông thường
 
@@ -46,26 +85,55 @@ const AdminInfoEvents = () => {
         window.history.back();
     };
 
-    const getRankFormat = (rank : number) => {
+    const getRankFormat = (rank: number) => {
         const suffixes = ["th", "st", "nd", "rd"];
         const lastTwoDigits = rank % 100;
         const lastDigit = rank % 10;
-      
+
         let suffixIndex = 0;
         if (lastTwoDigits >= 11 && lastTwoDigits <= 13) {
-          suffixIndex = 0;
+            suffixIndex = 0;
         } else if (lastDigit === 1) {
-          suffixIndex = 1;
+            suffixIndex = 1;
         } else if (lastDigit === 2) {
-          suffixIndex = 2;
+            suffixIndex = 2;
         } else if (lastDigit === 3) {
-          suffixIndex = 3;
+            suffixIndex = 3;
         } else {
-          suffixIndex = 0;
+            suffixIndex = 0;
         }
-      
+
         return `${rank}${suffixes[suffixIndex]}`;
-      };
+    };
+
+
+
+    const fetchData = async () => {
+        if (typeof id === 'string') {
+            const res = await eventApi.getEventById(id);
+            setDataEventID(res.data.event);
+        } else {
+            alert("Không tìm thấy ID !!!")
+        }
+    }
+    
+    useEffect(() => {
+        fetchData();
+    }, [id]);
+
+    useEffect(() => {
+        if (dataEventID) {
+            setNameEvent(dataEventID.nameEvent);
+            setDateEvent(dataEventID.dateEvent);
+            setEntries(dataEventID.entries);
+            setBuyIn(dataEventID.buyIn);
+            setVenueEvent(dataEventID.venueEvent);
+            setPokerRoom(dataEventID.pokerRoom);
+            setPokerTour(dataEventID.pokerTour);
+        }
+    }, [dataEventID]);
+
+
     return (
         <div className="">
             <div className="flex flex-col gap-1">
@@ -83,7 +151,7 @@ const AdminInfoEvents = () => {
                 <div className='w-[50%] flex flex-col gap-4 bg-white rounded-xl shadow-xl px-6 py-4'>
                     <div className='flex justify-start items-center'>
                         <h3 className='w-[30%] font-bold text-left text-xl'>ID Event : </h3>
-                        <p className='text-xl text-blue-500 font-bold w-[70%] text-right'>{idEvent}</p>
+                        <p className='text-xl text-blue-500 font-bold w-[70%] text-right'>{id}</p>
                     </div>
                     <div className='flex justify-start items-center'>
                         <h3 className='w-[30%] font-bold text-left text-xl'>Name Event : </h3>
@@ -101,10 +169,18 @@ const AdminInfoEvents = () => {
                         <h3 className='w-[30%] font-bold text-left text-xl'>Entries : </h3>
                         <p className='text-xl text-violet-500 font-bold w-[70%] text-right'>{entries}</p>
                     </div>
+                    <div className='flex justify-start items-center'>
+                        <h3 className='w-[30%] font-bold text-left text-xl'>Organizational Units : </h3>
+                        <div className='flex flex-col justify-center items-end w-[70%]'>
+                            <p className='text-xl text-black font-bold  text-right'>{pokerTour?.name} <span className='text-green-600'>( {pokerTour?.shortName} )</span> </p>
+                            <p className='text-xl text-black font-bold text-right'>{pokerRoom?.name} <span className='text-green-600'>( {pokerRoom?.shortName} )</span> </p>
+                        </div>
+                    </div>
                     <div className='flex justify-start items-center pb-2 border-b-[1px] border-gray-400'>
                         <h3 className='w-[30%] font-bold text-left text-xl'>Venue Event : </h3>
                         <p className='text-xl text-black font-bold w-[70%] text-right'>{venueEvent}</p>
                     </div>
+
                     <div className='flex justify-start items-center'>
                         <h3 className='w-[30%] font-bold text-blue-400  text-left text-xl'>
                             Total Prize :</h3>

@@ -10,7 +10,7 @@ import ButtonAdmin from "../../../components/components-admin/ButtonAdmin";
 import { toast } from "react-toastify";
 import Select from 'react-select';
 import axios from 'axios';
-import imgPlayerDefauth from "../../../images/player_img.png"
+import imgPlayerDefauth from "../../../images/playerPokerDefauth.png"
 
 interface CountryOption {
   value: string;

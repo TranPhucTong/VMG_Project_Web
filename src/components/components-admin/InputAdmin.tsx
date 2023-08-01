@@ -48,7 +48,7 @@ const InputAdmin: React.FC<InputProps> = ({
 
   return (
     <div className="flex flex-col justify-start">
-      <label className="text-left text-xl text-gray-600" htmlFor={inputId}>
+      <label className="text-left text-xl text-gray-600 font-bold" htmlFor={inputId}>
         {label}
       </label>
       {type === "text" && (

@@ -11,5 +11,8 @@ const eventApi = {
   createEvent: (data: Object) => {
     return mainAxios.post(`${url}`, { data });
   },
+  deleteEvent: (idEvent: String) => {
+    return mainAxios.post(`${url}/delete/${idEvent}`)
+  }
 };
 export default eventApi;

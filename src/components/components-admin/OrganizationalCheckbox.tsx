@@ -1,23 +1,39 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import pokerTourApi from '../../api/adminPokerTourApi';
+import pokerRoomApi from '../../api/adminPokerRoomApi';
 
-interface PokerRoom {
-    id: number;
+interface PokerRooms {
+    _id: string;
     name: string;
-    address: string;
+    shortName: string;
     logo: string;
+    avatar: string;
+    description: string;
+    Adress: string;
 }
 
-interface PokerTour {
-    id: number;
+interface PokerTours {
+    _id: string;
     name: string;
-    address: string;
+    shortName: string;
     logo: string;
+    avatar: string;
+    description: string;
 }
-const OrganizationalCheckbox = ({
+
+type PokerTourChangeHandler = (tour: PokerTours | null) => void;
+type PokerRoomChangeHandler = (room: PokerRooms | null) => void;
+
+const OrganizationalCheckbox = ({ onPokerTourChange,
+    onPokerRoomChange,
+}: {
+    onPokerTourChange: PokerTourChangeHandler;
+    onPokerRoomChange: PokerRoomChangeHandler;
 }) => {
     const [showPokerRoom, setShowPokerRoom] = useState(false);
     const [showPokerTour, setShowPokerTour] = useState(false);
     const [showBoth, setBoth] = useState(true);
+
 
     const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value;
@@ -28,82 +44,64 @@ const OrganizationalCheckbox = ({
         } else if (value === "poker-room") {
             setShowPokerRoom(true);
             setShowPokerTour(false);
-            setBoth(false)
+            setBoth(false);
         } else if (value === "poker-tour") {
             setShowPokerRoom(false);
             setShowPokerTour(true);
             setBoth(false)
         }
     };
-    const [selectedPokerTour, setSelectedPokerTour] = useState<PokerTour | null>(null);
-    const [selectedPokerRoom, setSelectedPokerRoom] = useState<PokerRoom | null>(null);
 
+
+    useEffect(() => {
+        onPokerRoomChange(null);
+        onPokerTourChange(null);
+    }, [showPokerRoom, showPokerTour, showBoth]);
 
 
     const handlePokerTourChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        const tourId = parseInt(event.target.value);
-        const tour = pokerToursData.find((pokerTour) => pokerTour.id === tourId) || null;
-        setSelectedPokerTour(tour);
+        const tourId = event.target.value;
+        const tour = dataPokerTour.find((pokerTour) => pokerTour._id === tourId) || null;
+        onPokerTourChange(tour);
     };
 
     const handlePokerRoomChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        const roomId = parseInt(event.target.value);
-        const room = pokerRoomsData.find((pokerRoom) => pokerRoom.id === roomId) || null;
-        setSelectedPokerRoom(room);
+        const roomId = event.target.value;
+        const room = dataPokerRoom.find((pokerRoom) => pokerRoom._id === roomId) || null;
+        onPokerRoomChange(room);
     };
 
-    // Dữ liệu cho Poker Room
-    const pokerRoomsData = [
-        {
-            id: 1,
-            name: "Poker Room 1",
-            address: "Địa chỉ Poker Room 1",
-            logo: "link-logo-1.png",
-        },
-        {
-            id: 2,
-            name: "Poker Room 2",
-            address: "Địa chỉ Poker Room 2",
-            logo: "link-logo-2.png",
-        },
-        // Thêm các đối tượng poker room khác (nếu có)
-    ];
+    const [dataPokerTour, setDataPokerTour] = useState<PokerTours[]>([]);
+    const [dataPokerRoom, setDataPokerRoom] = useState<PokerRooms[]>([]);
 
-    // Dữ liệu cho Poker Tour
-    const pokerToursData = [
-        {
-            id: 1,
-            name: "Poker Tour 1",
-            address: "Địa chỉ Poker Tour 1",
-            logo: "link-logo-tour-1.png",
-        },
-        {
-            id: 2,
-            name: "Poker Tour 2",
-            address: "Địa chỉ Poker Tour 2",
-            logo: "link-logo-tour-2.png",
-        },
-        // Thêm các đối tượng poker tour khác (nếu có)
-    ];
+    const fetchDataTour = async () => {
+        const resTour = await pokerTourApi.getPokerTour();
+        setDataPokerTour(resTour.data.data);
+    };
 
+    const fetchDataRoom = async () => {
+        const resRoom = await pokerRoomApi.getPokerRoom();
+        setDataPokerRoom(resRoom.data.data);
+    }
 
+    useEffect(() => {
+        fetchDataTour();
+        fetchDataRoom();
+    }, [])
 
     return (
         <div>
-
-
-
             <div className='flex justify-start items-center'>
                 {showPokerRoom && (
                     <div className="mb-4 w-full">
                         <label className="block text-lg text-left font-medium text-gray-700">
                             Select Poker Room:
                         </label>
-                        <select className="block w-full px-4 py-1 border rounded-md shadow-sm focus:ring focus:ring-blue-200 focus:outline-none" >
+                        <select onChange={handlePokerRoomChange} className="block w-full px-4 py-1 border rounded-md shadow-sm focus:ring focus:ring-blue-200 focus:outline-none" >
                             <option value="">Select a poker room</option>
-                            {pokerRoomsData.map((pokerRoom, index) => (
-                                <option key={index} value={pokerRoom.id}>
-                                    {pokerRoom.name}
+                            {dataPokerRoom.map((pokerRoom, index) => (
+                                <option key={index} value={pokerRoom._id}>
+                                    {pokerRoom.name} - ({pokerRoom.shortName})
                                 </option>
                             ))}
                         </select>
@@ -114,11 +112,11 @@ const OrganizationalCheckbox = ({
                         <label className="block text-lg font-medium text-left text-gray-700">
                             Select Poker Tour:
                         </label>
-                        <select className="block w-full px-4 py-1 border rounded-md shadow-sm focus:ring focus:ring-blue-200 focus:outline-none" >
+                        <select onChange={handlePokerTourChange} className="block w-full px-4 py-1 border rounded-md shadow-sm focus:ring focus:ring-blue-200 focus:outline-none" >
                             <option value="">Select a poker tour</option>
-                            {pokerToursData.map((pokerTour, index) => (
-                                <option key={index} value={pokerTour.id}>
-                                    {pokerTour.name}
+                            {dataPokerTour.map((pokerTour, index) => (
+                                <option key={index} value={pokerTour._id}>
+                                    {pokerTour.name} - ({pokerTour.shortName})
                                 </option>
                             ))}
                         </select>
@@ -138,9 +136,9 @@ const OrganizationalCheckbox = ({
                             onChange={handlePokerTourChange}
                         >
                             <option value="">Select a poker tour</option>
-                            {pokerToursData.map((pokerTour) => (
-                                <option key={pokerTour.id} value={pokerTour.id}>
-                                    {pokerTour.name}
+                            {dataPokerTour.map((pokerTour) => (
+                                <option key={pokerTour._id} value={pokerTour._id}>
+                                    {pokerTour.name} - ({pokerTour.shortName})
                                 </option>
                             ))}
                         </select>
@@ -154,9 +152,9 @@ const OrganizationalCheckbox = ({
                             onChange={handlePokerRoomChange}
                         >
                             <option value="">Select a poker room</option>
-                            {pokerRoomsData.map((pokerRoom) => (
-                                <option key={pokerRoom.id} value={pokerRoom.id}>
-                                    {pokerRoom.name}
+                            {dataPokerRoom.map((pokerRoom) => (
+                                <option key={pokerRoom._id} value={pokerRoom._id}>
+                                    {pokerRoom.name} - ({pokerRoom.shortName})
                                 </option>
                             ))}
                         </select>
