@@ -144,7 +144,7 @@ const AdminEvents = () => {
       setIsSave(true);
     }
 
-  }, [nameEvent, buyIn, venueEvent, venueEvent, dateEvent, entries, newArray, selectedPlayer, selectedPokerRoom, selectedPokerTour]);
+  }, [nameEvent, buyIn, venueEvent, dateEvent, entries, newArray, selectedPlayer, selectedPokerRoom, selectedPokerTour]);
 
 
   const handleNameEventChange = (value: string | number) => {
