@@ -138,12 +138,12 @@ const AdminTournaments = () => {
     setIsChecked(false);
   };
   useEffect(() => {
-    if (nameTour !== "" && dateTourStart !== "" && dateTourEnd !== "" && venueEvent !== "" && selectedImageTour !== "" && selectedPokerRoom !== null && selectedPokerTour !== null) {
+    if (nameTour !== "" && dateTourStart !== "" && dateTourEnd !== "" && venueEvent !== "" && selectedImageTour !== "") {
       setIsFormComplete(true);
     } else {
       setIsFormComplete(false);
     }
-  }, [nameTour, venueEvent, dateTourStart, dateTourEnd, selectedImageTour, selectedPokerRoom, selectedPokerTour]);
+  }, [nameTour, venueEvent, dateTourStart, dateTourEnd, selectedImageTour]);
   const clickAddTournament = async () => {
     const dataCreate: Object = {
       nameTour: nameTour,
@@ -151,8 +151,8 @@ const AdminTournaments = () => {
       dayEnd: dateTourEnd,
       image: selectedImageTour,
       venueTour: venueEvent,
-      pokerTourId: selectedPokerTour?._id,
-      pokerRoomId: selectedPokerRoom?._id,
+      pokerTourId: selectedPokerTour ?  selectedPokerTour._id : undefined,
+      pokerRoomId: selectedPokerRoom ? selectedPokerRoom._id : undefined,
     };
     try {
       const response = await adminTournamentsApi.createTournaments(dataCreate);

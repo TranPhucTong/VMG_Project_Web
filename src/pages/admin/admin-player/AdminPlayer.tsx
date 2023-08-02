@@ -310,7 +310,7 @@ const AdminPlayer = () => {
                     </a>
                   </td>
                   <td className="px-[16px] py-[20px] text-center min-w-[80px]">
-                    {(row.totalWinnings).toLocaleString()} <span className="font-bold text-yellow-500">$</span>
+                    {(row.totalWinnings).toLocaleString()} <span className="font-bold text-yellow-500">VNĐ</span>
                   </td>
                   <td className="px-[16px] py-[20px] text-center min-w-[80px]">
                     {row.vpoyPoint}

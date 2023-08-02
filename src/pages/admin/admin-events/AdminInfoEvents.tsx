@@ -159,7 +159,7 @@ const AdminInfoEvents = () => {
                     </div>
                     <div className='flex justify-start items-center'>
                         <h3 className='w-[30%] font-bold text-left text-xl'>Buy In : </h3>
-                        <p className='text-xl text-green-500 font-bold w-[70%] text-right'>{buyIn} $</p>
+                        <p className='text-xl text-green-500 font-bold w-[70%] text-right'>{buyIn.toLocaleString()} VNĐ</p>
                     </div>
                     <div className='flex justify-start items-center'>
                         <h3 className='w-[30%] font-bold text-left text-xl'>Date Event : </h3>
@@ -184,7 +184,7 @@ const AdminInfoEvents = () => {
                     <div className='flex justify-start items-center'>
                         <h3 className='w-[30%] font-bold text-blue-400  text-left text-xl'>
                             Total Prize :</h3>
-                        <p className='text-xl font-bold w-[70%] text-blue-400 text-right'>{totalPrize}$</p>
+                        <p className='text-xl font-bold w-[70%] text-blue-400 text-right'>{totalPrize} VNĐ</p>
                     </div>
 
                 </div>
@@ -206,7 +206,7 @@ const AdminInfoEvents = () => {
                                 <tr key={index} className={tableRowClass}>
                                     <td onClick={() => handleSelectUpdatePlayer(event)} className="border px-4 py-2 cursor-pointer underline hover:text-blue-500">{event.playerName}</td>
                                     <td className="border px-4 py-2">{getRankFormat(event.place)}</td>
-                                    <td className="border px-4 py-2">{(event.prize).toLocaleString()}$</td>
+                                    <td className="border px-4 py-2">{(event.prize).toLocaleString()}VNĐ</td>
                                 </tr>
                             ))}
                         </tbody>

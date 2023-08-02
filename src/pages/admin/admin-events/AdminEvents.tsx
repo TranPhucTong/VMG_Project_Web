@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { requireDetailsEvent } from '../../../reducers/slices/detailEventSlice';
 import configRoutes from '../../../config/configRouter';
 import OrganizationalCheckbox from '../../../components/components-admin/OrganizationalCheckbox';
+import adminTournamentsApi from '../../../api/adminTournamentsApi';
 
 
 
@@ -38,6 +39,17 @@ interface EventRow {
   pokerRoom: PokerRooms;
   pokerTour: PokerTours;
   resultsPrize: [];
+}
+
+interface TournamentsCreat {
+  _id: string;
+  nameTour: string;
+  dayStart: string;
+  dayEnd: string;
+  image: string;
+  venueTour: string;
+  pokerTourId: string;
+  pokerRoomId: string;
 }
 
 interface PokerRooms {
@@ -73,16 +85,21 @@ const AdminEvents = () => {
 
 
   const [selectedPlayer, setSelectedPlayer] = useState<TableRow | null>(null);
+  const [selectedTournaments, setSelectedTournaments] = useState<TournamentsCreat | null>(null);
   const [place, setPlace] = useState<string | number>("");
   const [prize, setPrize] = useState<string | number>("");
 
   const [showAddPlayers, setShowAddPlayers] = useState(false);
   const [isFormComplete, setIsFormComplete] = useState(false);
+  const [isFormCompleteEventTour, setIsFormCompleteEventTour] = useState(false);
   const [isSave, setIsSave] = useState(false);
+  const [showVeRoomTour, setShowVeRoomTour] = useState(true);
 
 
   const [dataPlayer, setDataPlayer] = useState<TableRow[]>([]);
   const [dataEvent, setDataEvent] = useState<EventRow[]>([]);
+  const [dataTournaments, setDataTournaments] = useState<TournamentsCreat[]>([]);
+
 
   const [selectedPokerTour, setSelectedPokerTour] = useState<PokerTours | null>(null);
   const [selectedPokerRoom, setSelectedPokerRoom] = useState<PokerRooms | null>(null);
@@ -117,6 +134,20 @@ const AdminEvents = () => {
     setDataPlayer(res.data.players);
     setDataEvent(resEvent.data.eventPorkers);
   };
+  const fetchDataTours = async () => {
+    const res = await adminTournamentsApi.getAllTournaments()
+    setDataTournaments(res.data.data);
+  }
+
+  useEffect(() => {
+    fetchDataTours();
+  }, [dataTournaments])
+
+  useEffect(() => {
+    if (selectedTournaments) {
+      setShowVeRoomTour(false);
+    }
+  }, [selectedTournaments])
 
   useEffect(() => {
     fetchData();
@@ -134,7 +165,7 @@ const AdminEvents = () => {
   }, [dataPlayer]);
 
   useEffect(() => {
-    if (nameEvent !== "" && buyIn !== "" && venueEvent !== "" && dateEvent !== "" && entries !== "" && newArray.length !== 0 && selectedPokerRoom !== null && selectedPokerTour !== null) {
+    if (nameEvent !== "" && buyIn !== "" && venueEvent !== "" && dateEvent !== "" && entries !== "" && newArray.length !== 0) {
       setIsFormComplete(true);
     } else {
       setIsFormComplete(false);
@@ -144,7 +175,20 @@ const AdminEvents = () => {
       setIsSave(true);
     }
 
-  }, [nameEvent, buyIn, venueEvent, dateEvent, entries, newArray, selectedPlayer, selectedPokerRoom, selectedPokerTour]);
+  }, [nameEvent, buyIn, venueEvent, dateEvent, entries, newArray, selectedPlayer]);
+
+  useEffect(() => {
+    if (nameEvent !== "" && buyIn !== "" && dateEvent !== "" && entries !== "" && newArray.length !== 0 && selectedTournaments !== null) {
+      setIsFormCompleteEventTour(true);
+    } else {
+      setIsFormCompleteEventTour(false);
+    }
+
+    if (newArray.length !== 0) {
+      setIsSave(true);
+    }
+
+  }, [nameEvent, buyIn, dateEvent, entries, newArray, selectedTournaments]);
 
 
   const handleNameEventChange = (value: string | number) => {
@@ -179,6 +223,12 @@ const AdminEvents = () => {
     const playerId = event.target.value;
     const player = dataPlayer.find((p) => p._id === playerId) || null;
     setSelectedPlayer(player);
+  };
+
+  const handleTournamentChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const tournamentId = event.target.value;
+    const tournament = dataTournaments.find((p) => p._id === tournamentId) || null;
+    setSelectedTournaments(tournament);
   };
 
   const handlePlaceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -230,25 +280,48 @@ const AdminEvents = () => {
     setIsChecked(false);
   }
   const clickAddEvent = async () => {
-    const dataCreate: Object = {
+    const dataCreateEventSingle: Object = {
       nameEvent: nameEvent,
       buyIn: buyIn,
       venueEvent: venueEvent,
       dateEvent: dateEvent,
       entries: entries,
-      pokerTourId: selectedPokerTour ? selectedPokerTour._id : null,
-      pokerRoomId: selectedPokerRoom ? selectedPokerRoom._id : null,
+      pokerTourId: selectedPokerTour ? selectedPokerTour._id : undefined,
+      pokerRoomId: selectedPokerRoom ? selectedPokerRoom._id : undefined,
       resultsPrize: newArray,
     };
+    const dataCreateEventOfTour: Object = {
+      nameEvent: nameEvent,
+      buyIn: buyIn,
+      venueEvent: selectedTournaments?.venueTour,
+      dateEvent: dateEvent,
+      entries: entries,
+      pokerTourId: selectedTournaments ? selectedTournaments.pokerTourId : undefined,
+      pokerRoomId: selectedTournaments ? selectedTournaments.pokerRoomId : undefined,
+      tourementID: selectedTournaments ? selectedTournaments._id : undefined,
+      resultsPrize: newArray,
+    }
 
-    try {
-      const response = await eventApi.createEvent(dataCreate);
-      console.log("Thành công", response);
-      toast.success("Thêm event mới thành công");
-      defauthValue();
-    } catch (error) {
-      console.log("Thất bại", error);
-      toast.error("Trùng tên event hoặc chưa nhập đầy đủ thông tin. Vui lòng kiểm tra lại!!!")
+    if (showVeRoomTour === false) {
+      try {
+        const response = await eventApi.createEvent(dataCreateEventOfTour);
+        console.log("Thành công", response);
+        toast.success("Thêm event mới vào tournament thành công");
+        defauthValue();
+      } catch (error) {
+        console.log("Thất bại", error);
+        toast.error("Trùng tên event hoặc chưa nhập đầy đủ thông tin. Vui lòng kiểm tra lại!!!")
+      }
+    } else {
+      try {
+        const response = await eventApi.createEvent(dataCreateEventSingle);
+        console.log("Thành công", response);
+        toast.success("Thêm event mới thành công");
+        defauthValue();
+      } catch (error) {
+        console.log("Thất bại", error);
+        toast.error("Trùng tên event hoặc chưa nhập đầy đủ thông tin. Vui lòng kiểm tra lại!!!")
+      }
     }
   };
 
@@ -314,6 +387,15 @@ const AdminEvents = () => {
     }
   };
 
+  const formatDate = (dateString: string) => {
+    const dateObj = new Date(dateString);
+    return dateObj.toLocaleDateString("en-GB");
+  };
+
+
+  const handleChangeCheckBoxTour = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setShowVeRoomTour(!event.target.checked);
+  };
   return (
     <div>
       <div className="flex justify-between gap-8 items-center">
@@ -328,8 +410,17 @@ const AdminEvents = () => {
         </div>
       </div>
       <div className="mt-5 rounded-lg bg-white shadow-xl">
-        <div className='px-8 py-4 text-left'>
+        <div className='px-8 py-4 text-left flex justify-between items-center'>
           <h1 className='text-2xl font-bold text-left'>Create New Event</h1>
+          <label className='flex justify-center items-center gap-2'>
+            <input
+              type="checkbox"
+              checked={!showVeRoomTour}
+              onChange={handleChangeCheckBoxTour}
+              className="h-6 w-6"
+            />
+            <p className='text-green-500 font-bold'>Create Event For The Tournament</p>
+          </label>
         </div>
         <div className='px-8 pb-4 flex gap-6'>
           <div className='flex flex-col justify-center items-center w-[50%]'>
@@ -342,10 +433,12 @@ const AdminEvents = () => {
                 // validate={(value) => /^[A-Za-z\s]+$/.test(namePlayer)}
                 placeholder="Vui lòng nhập tên ở đây"
               />
-              <div className=''>
-                <OrganizationalCheckbox onPokerTourChange={handlePokerTourChange}
-                  onPokerRoomChange={handlePokerRoomChange} />
-              </div>
+              {showVeRoomTour &&
+                <div className=''>
+                  <OrganizationalCheckbox onPokerTourChange={handlePokerTourChange}
+                    onPokerRoomChange={handlePokerRoomChange} />
+                </div>
+              }
               <InputAdmin
                 type="date"
                 value={dateEvent}
@@ -384,35 +477,64 @@ const AdminEvents = () => {
                 // validate={(value) => /^[A-Za-z\s]+$/.test(namePlayer)}
                 placeholder="Vui lòng nhập ở đây"
               />
-              <div className='mt-[42px] flex justify-between gap-2 items-center'>
-                <div className='w-[70%]'>
-                  <InputAdmin
-                    type="text"
-                    value={isChecked ? selectedPokerRoom?.Adress || "" : venueEvent}
-                    onChange={handlEvenueEventtChange}
-                    label="Venue Event"
-                    placeholder="Vui lòng nhập ở đây"
-                  />
-                </div>
-                {selectedPokerRoom !== null ? (
-                  <div className='w-[30%] flex mt-6 gap-1 justify-center items-center'>
-                    <input
-                      type="checkbox"
-                      checked={isChecked} // Đảm bảo checkbox được chọn khi có selectedPokerRoom
-                      onChange={handleVenueCheckboxChange}
+              {showVeRoomTour &&
+                <div className='mt-[42px] flex justify-between gap-2 items-center'>
+                  <div className='w-[70%]'>
+                    <InputAdmin
+                      type="text"
+                      value={isChecked ? selectedPokerRoom?.Adress || "" : venueEvent}
+                      onChange={handlEvenueEventtChange}
+                      label="Venue Event"
+                      placeholder="Vui lòng nhập ở đây"
                     />
-                    <p>Adress Poker Room</p>
                   </div>
-                ) : ("")}
-              </div>
+                  {selectedPokerRoom !== null ? (
+                    <div className='w-[30%] flex mt-6 gap-1 justify-center items-center'>
+                      <input
+                        type="checkbox"
+                        checked={isChecked} // Đảm bảo checkbox được chọn khi có selectedPokerRoom
+                        onChange={handleVenueCheckboxChange}
+                      />
+                      <p>Adress Poker Room</p>
+                    </div>
+                  ) : ("")}
+                </div>
+              }
+              {showVeRoomTour ? ("") :
+                (<div className='flex flex-col w-full'>
+                  <label className='text-left font-bold' htmlFor="player-select">Select Tournament:</label>
+                  <select
+                    id="player-select"
+                    className="border p-1 rounded-xl border-gray-400"
+                    value={selectedTournaments ? selectedTournaments._id : ""}
+                    onChange={handleTournamentChange}
+                  >
+                    <option value="">Select a player</option>
+                    {dataTournaments.map((tourItem) => (
+                      <option key={tourItem._id} value={tourItem._id}>
+                        {tourItem.nameTour}
+                      </option>
+                    ))}
+                  </select>
+                </div>)
+              }
             </div>
           </div>
         </div>
-        <div className='mt-10 pb-4 flex justify-center items-center w-[full] gap-6'>
-          <ButtonAdmin isFormComplete={isFormComplete} color="blue" onClick={clickAddEvent} >
-            Add New Event
-          </ButtonAdmin>
-        </div>
+        {showVeRoomTour ? (
+          <div className='mt-10 pb-4 flex justify-center items-center w-[full] gap-6'>
+            <ButtonAdmin isFormComplete={isFormComplete} color="blue" onClick={clickAddEvent} >
+              Add New Event
+            </ButtonAdmin>
+          </div>
+        ) : (
+          <div className='mt-10 pb-4 flex justify-center items-center w-[full] gap-6'>
+            <ButtonAdmin isFormComplete={isFormCompleteEventTour} color="blue" onClick={clickAddEvent} >
+              Add New Event For Tournament
+            </ButtonAdmin>
+          </div>
+        )}
+
 
 
       </div>
@@ -494,10 +616,10 @@ const AdminEvents = () => {
                     {row.nameEvent}
                   </td>
                   <td className="px-[16px] py-[20px] text-center font-bold text-blue-400 min-w-[80px]">
-                    {(row.buyIn).toLocaleString()} <span className='font-bold text-yellow-500'>$</span>
+                    {(row.buyIn).toLocaleString()} <span className='font-bold text-yellow-500'>VNĐ</span>
                   </td>
                   <td className="px-[16px] py-[20px] text-center min-w-[80px]">
-                    {row.dateEvent}
+                    {formatDate(row.dateEvent)}
                   </td>
                   <td className="px-[16px] py-[20px] text-center font-bold text-green-400 min-w-[80px]">
                     {row.entries}
@@ -506,7 +628,7 @@ const AdminEvents = () => {
                     {truncateText(row.venueEvent, 20)}
                   </td>
                   <td className="px-[16px] py-[20px] font-bold text-orange-500 text-center min-w-[80px]">
-                    {row.pokerTour.shortName} <span className='text-gray-400'>/</span>  {row.pokerRoom.shortName} 
+                    {row.pokerTour && row.pokerTour.shortName} <span className='text-gray-400'>/</span>  { row.pokerRoom && row.pokerRoom.shortName}
                   </td>
                   <td className="px-[16px] py-[20px] text-center min-w-[80px] relative">
                     <FontAwesomeIcon

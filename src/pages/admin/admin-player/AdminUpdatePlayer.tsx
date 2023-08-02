@@ -304,8 +304,8 @@ const AdminUpdatePlayer = () => {
                                 <td className="border px-4 py-2">{index + 1}</td>
                                 <td onClick={() => handleSelectDetailsEvent(event)} className="border px-4 py-2 underline hover:text-blue-500 cursor-pointer font-bold">{event.nameEvent}</td>
                                 <td className="border px-4 py-2 font-bold"> <span className='text-blue-500'>{getRankFormat(event.place)}</span> <span className='text-gray-500'>/</span> <span className='text-green-500'>{event.entries}</span></td>
-                                <td className="border px-4 py-2">{(event.prize).toLocaleString()}$</td>
-                                <td className="border px-4 py-2">{(event.buyin).toLocaleString()}$</td>
+                                <td className="border px-4 py-2">{(event.prize).toLocaleString()} VNĐ</td>
+                                <td className="border px-4 py-2">{(event.buyin).toLocaleString()} VNĐ</td>
                             </tr>
                         ))}
                     </tbody>
