@@ -138,12 +138,12 @@ const AdminTournaments = () => {
     setIsChecked(false);
   };
   useEffect(() => {
-    if (nameTour !== "" && dateTourStart !== "" && dateTourEnd !== "" && venueEvent !== "" && selectedImageTour !== "") {
+    if (nameTour !== "" && dateTourStart !== "" && dateTourEnd !== "" && venueEvent !== "" && selectedImageTour !== "" && (selectedPokerTour !== null || selectedPokerRoom !== null)) {
       setIsFormComplete(true);
     } else {
       setIsFormComplete(false);
     }
-  }, [nameTour, venueEvent, dateTourStart, dateTourEnd, selectedImageTour]);
+  }, [nameTour, venueEvent, dateTourStart, dateTourEnd, selectedImageTour, selectedPokerTour,selectedPokerRoom]);
   const clickAddTournament = async () => {
     const dataCreate: Object = {
       nameTour: nameTour,
@@ -151,7 +151,7 @@ const AdminTournaments = () => {
       dayEnd: dateTourEnd,
       image: selectedImageTour,
       venueTour: venueEvent,
-      pokerTourId: selectedPokerTour ?  selectedPokerTour._id : undefined,
+      pokerTourId: selectedPokerTour ? selectedPokerTour._id : undefined,
       pokerRoomId: selectedPokerRoom ? selectedPokerRoom._id : undefined,
     };
     try {
@@ -169,7 +169,7 @@ const AdminTournaments = () => {
       const res = await adminTournamentsApi.deleteTournament(tournaments._id);
       console.log(res);
       toast.success("Xóa event thành công");
-      setCurrentPage(1); 
+      setCurrentPage(1);
     } catch (error) {
       console.log(error);
       toast.error("Xóa thất bại ")
@@ -430,10 +430,10 @@ const AdminTournaments = () => {
                     {row.nameTour}
                   </td>
                   <td className="px-[16px] py-[20px] text-center  font-bold text-blue-400 min-w-[80px]">
-                  {formatDate(row.dayStart)}
+                    {formatDate(row.dayStart)}
                   </td>
                   <td className="px-[16px] py-[20px] text-center font-bold text-green-400 min-w-[80px]">
-                  {formatDate(row.dayEnd)}
+                    {formatDate(row.dayEnd)}
                   </td>
                   <td className="px-[16px] py-[20px] text-center min-w-[80px]">
                     {truncateText(row.venueTour, 20)}
@@ -471,7 +471,7 @@ const AdminTournaments = () => {
                           </button>
                           <button
                             className="flex gap-3 justify-center hover:text-[#f45d5d] items-center w-full text-left px-4 py-2 text-red-600 "
-                          onClick={() => handleDelete(row)}
+                            onClick={() => handleDelete(row)}
                           >
                             <FontAwesomeIcon
                               className="text-xl"

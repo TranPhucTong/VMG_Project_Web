@@ -165,7 +165,7 @@ const AdminEvents = () => {
   }, [dataPlayer]);
 
   useEffect(() => {
-    if (nameEvent !== "" && buyIn !== "" && venueEvent !== "" && dateEvent !== "" && entries !== "" && newArray.length !== 0) {
+    if (nameEvent !== "" && buyIn !== "" && venueEvent !== "" && dateEvent !== "" && entries !== "" && newArray.length !== 0  && (selectedPokerTour !== null || selectedPokerRoom !== null)) {
       setIsFormComplete(true);
     } else {
       setIsFormComplete(false);
@@ -175,7 +175,7 @@ const AdminEvents = () => {
       setIsSave(true);
     }
 
-  }, [nameEvent, buyIn, venueEvent, dateEvent, entries, newArray, selectedPlayer]);
+  }, [nameEvent, buyIn, venueEvent, dateEvent, entries, newArray, selectedPlayer, selectedPokerRoom, selectedPokerTour]);
 
   useEffect(() => {
     if (nameEvent !== "" && buyIn !== "" && dateEvent !== "" && entries !== "" && newArray.length !== 0 && selectedTournaments !== null) {
@@ -628,7 +628,11 @@ const AdminEvents = () => {
                     {truncateText(row.venueEvent, 20)}
                   </td>
                   <td className="px-[16px] py-[20px] font-bold text-orange-500 text-center min-w-[80px]">
-                    {row.pokerTour && row.pokerTour.shortName} <span className='text-gray-400'>/</span>  { row.pokerRoom && row.pokerRoom.shortName}
+                    {row.pokerTour && row.pokerTour.shortName}
+                    {row.pokerRoom && row.pokerTour ? (
+                      <span className='text-gray-400'>/</span>
+                    ) : ("")}
+                    {row.pokerRoom && row.pokerRoom.shortName}
                   </td>
                   <td className="px-[16px] py-[20px] text-center min-w-[80px] relative">
                     <FontAwesomeIcon

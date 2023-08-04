@@ -29,12 +29,14 @@ interface City {
   subcountry: string;
 }
 
+interface CountryInfo {
+  name: string;
+  flag: string;
+}
+
+const REST_COUNTRIES_API = "https://restcountries.com/v3.1";
 
 const AdminAddPlayer = () => {
-  const [countries, setCountries] = useState<CountryOption[]>([]);
-  const [selectedCountry, setSelectedCountry] = useState<CountryOption | null>(null);
-  // const [cities, setCities] = useState<CityOption[]>([]);
-  const [selectedCity, setSelectedCity] = useState<CityOption | null>(null);
   const navigate = useNavigate();
 
 
@@ -76,10 +78,12 @@ const AdminAddPlayer = () => {
   const [namePlayer, setNamePlayer] = useState("");
   const [linkInfo, setLinkInfo] = useState("");
   const [data, setData] = useState<City[]>([]);
-  const [getCountry, setCountry] = useState<string | undefined>();
+  // const [getCountry, setCountry] = useState<string | undefined>();
+  const [getCountry, setCountry] = useState<string | undefined>("Vietnam"); // Thêm giá trị mặc định là "Vietnam"
   const [getState, setState] = useState<string[]>([]);
   const [selectedState, setSelectedState] = useState<string | undefined>();
   const [cities, setCities] = useState<City[]>([]);
+  const [countryInfo, setCountryInfo] = useState<CountryInfo | null>(null);
 
   useEffect(() => {
     if (namePlayer !== "" && getCountry !== undefined && selectedState !== undefined && linkInfo !== "" && selectedImage !== null) {
@@ -106,6 +110,7 @@ const AdminAddPlayer = () => {
       linkInfo: linkInfo,
     };
 
+
     try {
       const response = await playerApi.createPlayer(dataCreate);
       console.log("Thành công", response);
@@ -124,13 +129,8 @@ const AdminAddPlayer = () => {
     setLinkInfo(String(value));
   };
 
-  // const handleSelectChange = (value: string) => {
-  //   setSelectValue(value);
-  // };
 
 
-  
-  
 
   useEffect(() => {
     axios
@@ -148,22 +148,55 @@ const AdminAddPlayer = () => {
         .map((item) => item.subcountry);
       states = [...new Set(states)].sort();
       setState(states);
+
+      axios
+        .get(`${REST_COUNTRIES_API}/name/${getCountry}`)
+        .then((res) => {
+          if (res.data.length > 0) {
+            setCountryInfo({
+              name: res.data[0].name.common,
+              flag: res.data[0].flags.png
+            });
+          }
+        })
+        .catch((err) => console.log(err));
     }
   }, [data, getCountry]);
 
   useEffect(() => {
     if (selectedState) {
-      const cities = data.filter(
-        (city) => city.subcountry === selectedState
-      );
+      const cities = data.filter((city) => city.subcountry === selectedState);
       setCities(cities);
     }
   }, [data, selectedState]);
 
   const country1 = [...new Set(data.map((item) => item.country))].sort();
 
+  const SPECIAL_CITIES = ["Ho Chi Minh city", "Ha Nội", "Đà Nẵng"];
 
-
+  const formatCityName = (city: string): string => {
+    if (city === "Ha Nội") {
+      return "Hà Nội";
+    } else if (city === "Ho Chi Minh city")
+      return "Thành phố Hồ Chí Minh"
+    return city;
+  };
+  const formatCountryName = (country: string): string => {
+    if (country === "Vietnam") {
+      return "Việt Nam";
+    }
+    return country;
+  };
+  const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedCity = e.target.value;
+    const formattedCity = formatCityName(selectedCity);
+    setSelectedState(formattedCity);
+  };
+  const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedCountry = e.target.value;
+    const formattedCountry = formatCountryName(selectedCountry);
+    setCountry(formattedCountry);
+  };
 
   return (
     <div className="">
@@ -212,7 +245,7 @@ const AdminAddPlayer = () => {
                 />
               </label>
             </div>
-            <div className="w-[70%] flex justify-center gap-16">
+            <div className="w-[70%] flex justify-center gap-16 transition-all duration-150 ease-in-out">
               <div className="flex flex-col gap-10">
                 <InputAdmin
                   type="text"
@@ -229,45 +262,36 @@ const AdminAddPlayer = () => {
                   label="Link Info"
                   placeholder="Vui lòng nhập đường link"
                 />
-
-                <div className="w-full flex flex-col justify-center items-center gap-4">
-                  <div className="w-full flex flex-col justify-center items-start gap-1">
-                    <label>Country:</label>
-                    <select className="border border-gray-400 rounded-md py-2 px-4" onChange={(e) => setCountry(e.target.value)}>
-                      <option value="">Select Country</option>
-                      {country1.map((items) => (
-                        <option key={items} value={items}>
-                          {items}
-                        </option>
-                      ))}
-                    </select>
+                <div className="w-full flex flex-col justify-center items-start gap-1">
+                  <div className="flex justify-center items-end gap-4">
+                    <div className="">
+                      <h2 className="text-left font-bold">Select a country:</h2>
+                      <select className="border border-gray-400 rounded-md py-2 px-4 w-full" onChange={handleCountryChange} value={getCountry}>
+                        {getCountry === undefined && <option value="Việt Nam">Việt Nam</option>}
+                        {country1.map((items) => (
+                          <option key={items} value={items}>
+                            {formatCountryName(items)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {countryInfo && (
+                      <div className="">
+                        <img className={`w-16 h-11 object-cover rounded-lg`} src={countryInfo.flag} alt={`${countryInfo.name} Flag`} />
+                      </div>
+                    )}
                   </div>
-
-                  <div className="w-full flex flex-col justify-center items-start gap-1">
-                    <label>City:</label>
-                    <select className="border border-gray-400 rounded-md py-2 px-4 w-full" onChange={(e) => setSelectedState(e.target.value)}>
-                      <option value="">Select City</option>
-                      {getState.map((items) => (
+                  <h2 className="font-bold">Select a city:</h2>
+                  <select className="border border-gray-400 rounded-md py-2 px-4 w-full" onChange={handleCityChange}>
+                    <option value="">Select City</option>
+                    {[...SPECIAL_CITIES, ...getState.filter(city => !SPECIAL_CITIES.includes(city))]
+                      .map((items) => (
                         <option key={items} value={items}>
-                          {items}
+                          {formatCityName(items)} {/* Sử dụng hàm formatCityName */}
                         </option>
                       ))}
-                    </select>
-                  </div>
-
-                  {/* <div>
-                    <label>City:</label>
-                    <select>
-                      <option value="">Select City</option>
-                      {cities.map((items) => (
-                        <option key={items.geonameid} value={items.name}>
-                          {items.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div> */}
+                  </select>
                 </div>
-
                 <ButtonAdmin isFormComplete={isFormComplete} color="blue" onClick={clickAddPlayer}>
                   Add New Player
                 </ButtonAdmin>
