@@ -165,7 +165,7 @@ const AdminEvents = () => {
   }, [dataPlayer]);
 
   useEffect(() => {
-    if (nameEvent !== "" && buyIn !== "" && venueEvent !== "" && dateEvent !== "" && entries !== "" && newArray.length !== 0  && (selectedPokerTour !== null || selectedPokerRoom !== null)) {
+    if (nameEvent !== "" && buyIn !== "" && venueEvent !== "" && dateEvent !== "" && entries !== "" && newArray.length !== 0 && (selectedPokerTour !== null || selectedPokerRoom !== null)) {
       setIsFormComplete(true);
     } else {
       setIsFormComplete(false);
@@ -435,48 +435,10 @@ const AdminEvents = () => {
               />
               {showVeRoomTour &&
                 <div className=''>
-                  <OrganizationalCheckbox onPokerTourChange={handlePokerTourChange}
+                  <OrganizationalCheckbox defaultPokerRoom={""} defaultPokerTour={""} onPokerTourChange={handlePokerTourChange}
                     onPokerRoomChange={handlePokerRoomChange} />
                 </div>
               }
-              <InputAdmin
-                type="date"
-                value={dateEvent}
-                onChange={handlDateEventChange}
-                label="Date Event"
-                placeholder="Vui lòng nhập ở đây"
-              />
-              <div
-                onClick={() => setShowAddPlayers(true)}
-                className="flex w-[30%] mt-6 gap-2 cursor-pointer justify-center items-center px-2 py-1 rounded-xl border-gray-400 border-[1px] hover:bg-blue-500 hover:text-white transition-colors ease-in-out duration-200"
-              >
-                <FontAwesomeIcon
-                  className="text-green-400"
-                  icon={faPlusCircle}
-                />
-                <button>Add Players</button>
-              </div>
-            </div>
-
-          </div>
-          <div className='flex flex-col justify-start items-center w-[50%]'>
-            <div className='w-full flex-col flex gap-3'>
-              <InputAdmin
-                type="number"
-                value={buyIn}
-                onChange={handleBuyInChange}
-                label="Buy In"
-                // validate={(value) => /^[A-Za-z\s]+$/.test(namePlayer)}
-                placeholder="Vui lòng nhập ở đây"
-              />
-              <InputAdmin
-                type="number"
-                value={entries}
-                onChange={handleEntriesChange}
-                label="Entries"
-                // validate={(value) => /^[A-Za-z\s]+$/.test(namePlayer)}
-                placeholder="Vui lòng nhập ở đây"
-              />
               {showVeRoomTour &&
                 <div className='mt-[42px] flex justify-between gap-2 items-center'>
                   <div className='w-[70%]'>
@@ -518,6 +480,45 @@ const AdminEvents = () => {
                   </select>
                 </div>)
               }
+              <div
+                onClick={() => setShowAddPlayers(true)}
+                className="flex w-[30%] mt-6 gap-2 cursor-pointer justify-center items-center px-2 py-1 rounded-xl border-gray-400 border-[1px] hover:bg-blue-500 hover:text-white transition-colors ease-in-out duration-200"
+              >
+                <FontAwesomeIcon
+                  className="text-green-400"
+                  icon={faPlusCircle}
+                />
+                <button>Add Players</button>
+              </div>
+            </div>
+
+          </div>
+          <div className='flex flex-col justify-start items-center w-[50%]'>
+            <div className='w-full flex-col flex gap-3'>
+              <InputAdmin
+                type="date"
+                value={dateEvent}
+                onChange={handlDateEventChange}
+                label="Date Event"
+                placeholder="Vui lòng nhập ở đây"
+              />
+              <InputAdmin
+                type="number"
+                value={buyIn}
+                onChange={handleBuyInChange}
+                label="Buy In"
+                // validate={(value) => /^[A-Za-z\s]+$/.test(namePlayer)}
+                placeholder="Vui lòng nhập ở đây"
+              />
+              <InputAdmin
+                type="number"
+                value={entries}
+                onChange={handleEntriesChange}
+                label="Entries"
+                // validate={(value) => /^[A-Za-z\s]+$/.test(namePlayer)}
+                placeholder="Vui lòng nhập ở đây"
+              />
+
             </div>
           </div>
         </div>
@@ -783,7 +784,7 @@ const AdminEvents = () => {
                         <td className="border px-4 py-2">{player._id}</td>
                         <td className="border px-4 py-2">{player.playerName}</td>
                         <td className="border px-4 py-2">{player.place}</td>
-                        <td className="border px-4 py-2">{(player.prize).toLocaleString()}$</td>
+                        <td className="border px-4 py-2">{(player.prize).toLocaleString()} VNĐ</td>
                         <td className="border px-4 py-2">
                           <button
                             className="px-2 py-1 rounded-md bg-red-500 text-white"

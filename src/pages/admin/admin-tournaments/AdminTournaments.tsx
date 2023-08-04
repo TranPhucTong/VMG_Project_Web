@@ -315,7 +315,7 @@ const AdminTournaments = () => {
                 </div>
               </div>
               <div className=''>
-                <OrganizationalCheckbox onPokerTourChange={handlePokerTourChange}
+                <OrganizationalCheckbox defaultPokerRoom={""} defaultPokerTour={""} onPokerTourChange={handlePokerTourChange}
                   onPokerRoomChange={handlePokerRoomChange} />
               </div>
               <div className='flex justify-between gap-2 items-center'>

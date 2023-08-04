@@ -25,14 +25,22 @@ type PokerTourChangeHandler = (tour: PokerTours | null) => void;
 type PokerRoomChangeHandler = (room: PokerRooms | null) => void;
 
 const OrganizationalCheckbox = ({ onPokerTourChange,
-    onPokerRoomChange,
+    onPokerRoomChange, defaultPokerTour,
+    defaultPokerRoom,
 }: {
     onPokerTourChange: PokerTourChangeHandler;
     onPokerRoomChange: PokerRoomChangeHandler;
+    defaultPokerTour: string | null;
+    defaultPokerRoom: string | null;
 }) => {
     const [showPokerRoom, setShowPokerRoom] = useState(false);
     const [showPokerTour, setShowPokerTour] = useState(false);
     const [showBoth, setBoth] = useState(true);
+    const [selectedRoom, setSelectedRoom] = useState<string | null>(defaultPokerRoom);
+    const [selectedTour, setSelectedTour] = useState<string | null>(defaultPokerTour);
+
+
+
 
 
     const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,12 +69,14 @@ const OrganizationalCheckbox = ({ onPokerTourChange,
 
     const handlePokerTourChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const tourId = event.target.value;
+        setSelectedTour(tourId);
         const tour = dataPokerTour.find((pokerTour) => pokerTour._id === tourId) || null;
         onPokerTourChange(tour);
     };
 
     const handlePokerRoomChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const roomId = event.target.value;
+        setSelectedRoom(roomId);
         const room = dataPokerRoom.find((pokerRoom) => pokerRoom._id === roomId) || null;
         onPokerRoomChange(room);
     };
@@ -97,7 +107,9 @@ const OrganizationalCheckbox = ({ onPokerTourChange,
                         <label className="block text-lg text-left font-medium text-gray-700">
                             Select Poker Room:
                         </label>
-                        <select onChange={handlePokerRoomChange} className="block w-full px-4 py-1 border rounded-md shadow-sm focus:ring focus:ring-blue-200 focus:outline-none" >
+                        <select onChange={handlePokerRoomChange}
+                            value={selectedRoom ? selectedRoom : ""}
+                            className="block w-full px-4 py-1 border rounded-md shadow-sm focus:ring focus:ring-blue-200 focus:outline-none" >
                             <option value="">Select a poker room</option>
                             {dataPokerRoom.map((pokerRoom, index) => (
                                 <option key={index} value={pokerRoom._id}>
@@ -112,7 +124,9 @@ const OrganizationalCheckbox = ({ onPokerTourChange,
                         <label className="block text-lg font-medium text-left text-gray-700">
                             Select Poker Tour:
                         </label>
-                        <select onChange={handlePokerTourChange} className="block w-full px-4 py-1 border rounded-md shadow-sm focus:ring focus:ring-blue-200 focus:outline-none" >
+                        <select
+                            value={selectedTour ? selectedTour : ""}
+                            onChange={handlePokerTourChange} className="block w-full px-4 py-1 border rounded-md shadow-sm focus:ring focus:ring-blue-200 focus:outline-none" >
                             <option value="">Select a poker tour</option>
                             {dataPokerTour.map((pokerTour, index) => (
                                 <option key={index} value={pokerTour._id}>
@@ -134,6 +148,7 @@ const OrganizationalCheckbox = ({ onPokerTourChange,
                         <select
                             className="block w-full px-4 py-1 border rounded-md shadow-sm focus:ring focus:ring-blue-200 focus:outline-none"
                             onChange={handlePokerTourChange}
+                            value={selectedTour ? selectedTour : ""}
                         >
                             <option value="">Select a poker tour</option>
                             {dataPokerTour.map((pokerTour) => (
@@ -150,6 +165,7 @@ const OrganizationalCheckbox = ({ onPokerTourChange,
                         <select
                             className="block w-full  px-4 py-1 border rounded-md shadow-sm focus:ring focus:ring-blue-200 focus:outline-none"
                             onChange={handlePokerRoomChange}
+                            value={selectedRoom ? selectedRoom : ""}
                         >
                             <option value="">Select a poker room</option>
                             {dataPokerRoom.map((pokerRoom) => (
