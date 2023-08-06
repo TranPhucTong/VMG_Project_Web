@@ -1,15 +1,18 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { uploadBytesResumable, ref, getDownloadURL } from "firebase/storage";
 import storage from "../../../firebase/firebase";
-import InputAdmin from '../../../components/components-admin/InputAdmin';
-import TextArea from '../../../components/components-admin/TextArea';
-import pokerTourApi from '../../../api/adminPokerTourApi';
-import { toast } from 'react-toastify';
-import ButtonAdmin from '../../../components/components-admin/ButtonAdmin';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faEllipsis, faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
-
-
+import InputAdmin from "../../../components/components-admin/InputAdmin";
+import TextArea from "../../../components/components-admin/TextArea";
+import pokerTourApi from "../../../api/adminPokerTourApi";
+import { toast } from "react-toastify";
+import ButtonAdmin from "../../../components/components-admin/ButtonAdmin";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faEdit,
+  faEllipsis,
+  faTrash,
+  faXmark,
+} from "@fortawesome/free-solid-svg-icons";
 
 interface PokerTours {
   _id: string;
@@ -20,27 +23,26 @@ interface PokerTours {
   description: string;
 }
 
-
 const AdminPokerTour = () => {
   const [selectedLogo, setSelectedLogo] = useState<string | null>("");
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>("");
   const [namePokerTour, setNamePokerTour] = useState("");
   const [shortName, setShortName] = useState("");
-  const [description, setDescription] = useState<string>('');
+  const [description, setDescription] = useState<string>("");
 
   //Modal
+  const [idModal, setIdModal] = useState<string | null>("");
   const [selectedLogoModal, setSelectedLogoModal] = useState<string | null>("");
-  const [selectedAvatarModal, setSelectedAvatarModal] = useState<string | null>("");
+  const [selectedAvatarModal, setSelectedAvatarModal] = useState<string | null>(
+    ""
+  );
   const [namePokerTourModal, setNamePokerTourModal] = useState("");
   const [shortNameModal, setShortNameModal] = useState("");
-  const [descriptionModal, setDescriptionModal] = useState<string>('');
-
+  const [descriptionModal, setDescriptionModal] = useState<string>("");
 
   const [isFormComplete, setIsFormComplete] = useState(false);
+  const [isFormCompleteModal, setIsFormCompleteModal] = useState(false);
   const [showDetailPokerTour, setShowDetailPokerTour] = useState(false);
-
-
-
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
@@ -48,9 +50,6 @@ const AdminPokerTour = () => {
   const [dataPokerTour, setDataPokerTour] = useState<PokerTours[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
 
-
-
-  
   const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -80,6 +79,36 @@ const AdminPokerTour = () => {
     }
   };
 
+  const handleImageModalChange = async (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      try {
+        // Tạo tham chiếu đến thư mục lưu trữ ảnh (ví dụ: images) trên Firebase Storage
+        const storageRef = ref(storage, "Avt_Player_VMG/" + file.name);
+
+        // Upload ảnh lên Firebase Storage
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        // Lắng nghe sự kiện upload thành công và lấy đường dẫn ảnh sau khi upload
+        uploadTask.on(
+          "state_changed",
+          null,
+          (error: any) => {
+            console.error("Error uploading image:", error);
+          },
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              setSelectedLogoModal(downloadURL); // Lưu đường dẫn ảnh sau khi upload vào state selectedImage
+            });
+          }
+        );
+      } catch (error) {
+        console.error("Error uploading image:", error);
+      }
+    }
+  };
 
   const handleAvartarChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -110,6 +139,37 @@ const AdminPokerTour = () => {
     }
   };
 
+  const handleAvartarModalChange = async (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      try {
+        // Tạo tham chiếu đến thư mục lưu trữ ảnh (ví dụ: images) trên Firebase Storage
+        const storageRef = ref(storage, "Avt_Player_VMG/" + file.name);
+
+        // Upload ảnh lên Firebase Storage
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        // Lắng nghe sự kiện upload thành công và lấy đường dẫn ảnh sau khi upload
+        uploadTask.on(
+          "state_changed",
+          null,
+          (error: any) => {
+            console.error("Error uploading image:", error);
+          },
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              setSelectedAvatarModal(downloadURL); // Lưu đường dẫn ảnh sau khi upload vào state selectedImage
+            });
+          }
+        );
+      } catch (error) {
+        console.error("Error uploading image:", error);
+      }
+    }
+  };
+
   const handleNamePokerTourChange = (value: string | number) => {
     setNamePokerTour(String(value));
   };
@@ -119,7 +179,6 @@ const AdminPokerTour = () => {
   const handleContentChange = (content: string) => {
     setDescription(content);
   };
-  
 
   // HandleModal
   const handleNamePokerTourChangeModal = (value: string | number) => {
@@ -133,12 +192,38 @@ const AdminPokerTour = () => {
   };
 
   useEffect(() => {
-    if (namePokerTour !== "" && selectedAvatar !== "" && selectedLogo !== "" && shortName !== "" && description !== "") {
+    if (
+      namePokerTour !== "" &&
+      selectedAvatar !== "" &&
+      selectedLogo !== "" &&
+      shortName !== "" &&
+      description !== ""
+    ) {
       setIsFormComplete(true);
     } else {
       setIsFormComplete(false);
     }
   }, [namePokerTour, selectedAvatar, selectedLogo, shortName, description]);
+
+  useEffect(() => {
+    if (
+      namePokerTourModal !== "" &&
+      selectedAvatarModal !== "" &&
+      selectedLogoModal !== "" &&
+      shortNameModal !== "" &&
+      descriptionModal !== ""
+    ) {
+      setIsFormCompleteModal(true);
+    } else {
+      setIsFormCompleteModal(false);
+    }
+  }, [
+    namePokerTourModal,
+    selectedAvatarModal,
+    selectedLogoModal,
+    shortNameModal,
+    descriptionModal,
+  ]);
 
   const defauthValue = () => {
     setNamePokerTour("");
@@ -146,14 +231,14 @@ const AdminPokerTour = () => {
     setShortName("");
     setSelectedLogo("");
     setSelectedAvatar("");
-  }
+  };
   const clickAddPokerTour = async () => {
     const dataCreate: Object = {
       name: namePokerTour,
       shortName: shortName,
       logo: selectedLogo,
       avatar: selectedAvatar,
-      description: description
+      description: description,
     };
 
     try {
@@ -163,7 +248,37 @@ const AdminPokerTour = () => {
       defauthValue();
     } catch (error) {
       console.log("Thất bại", error);
-      toast.error("Create failure. Please check your input again!!!")
+      toast.error("Create failure. Please check your input again!!!");
+    }
+  };
+
+  const clickUpdatePokerTour = async () => {
+    const dataUpdate: Object = {
+      name: namePokerTourModal,
+      shortName: shortNameModal,
+      logo: selectedLogoModal,
+      avatar: selectedAvatarModal,
+      description: descriptionModal,
+    };
+
+    try {
+      const res = await pokerTourApi.updatePokerTour(
+        idModal ? idModal : "",
+        dataUpdate
+      );
+      toast.success("Cập nhật thông tin poker tour thành công");
+      setShowDetailPokerTour(false);
+    } catch (error) {
+      toast.error("Cập nhật poker tour thất bại, vui lòng kiểm tra lại!!!");
+    }
+  };
+
+  const clickDeletePokerTour = async (id: string) => {
+    try {
+      const res = await pokerTourApi.deletePokerTour(id);
+      toast.success("Xóa poker tour thành công");
+    } catch (error) {
+      toast.error("Xóa thất bại, vui lòng kiểm tra lại!!!");
     }
   };
 
@@ -201,6 +316,9 @@ const AdminPokerTour = () => {
 
   useEffect(() => {
     fetchData();
+  }, [dataPokerTour]);
+
+  useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setSelectedRow(null);
@@ -212,7 +330,7 @@ const AdminPokerTour = () => {
     return () => {
       document.removeEventListener("click", handleOutsideClick);
     };
-  }, [dataPokerTour]);
+  });
 
   const handleSelectDetailsPokerTour = (pokerTour: any) => {
     setShowDetailPokerTour(true);
@@ -221,6 +339,7 @@ const AdminPokerTour = () => {
     setSelectedAvatarModal(pokerTour.avatar);
     setSelectedLogoModal(pokerTour.logo);
     setShortNameModal(pokerTour.shortName);
+    setIdModal(pokerTour._id);
   };
 
   return (
@@ -237,16 +356,19 @@ const AdminPokerTour = () => {
         </div>
       </div>
       <div className="mt-5 rounded-lg bg-white shadow-xl">
-        <div className='px-8 py-4 text-left'>
-          <h1 className='text-2xl font-bold text-left'>Create New Poker Tour</h1>
+        <div className="px-8 py-4 text-left">
+          <h1 className="text-2xl font-bold text-left">
+            Create New Poker Tour
+          </h1>
         </div>
-        <div className='px-8 pb-4 flex gap-6'>
-          <div className='flex flex-col justify-start items-center w-[50%]'>
-            <div className='w-full flex-col flex gap-5'>
+        <div className="px-8 pb-4 flex gap-6">
+          <div className="flex flex-col justify-start items-center w-[50%]">
+            <div className="w-full flex-col flex gap-5">
               <div className="flex flex-col w-full items-center">
                 <div
-                  className={`rounded-full overflow-hidden w-48 h-48 border-4 ${selectedLogo ? "border-green-500" : "border-gray-500"
-                    }`}
+                  className={`rounded-full overflow-hidden w-48 h-48 border-4 ${
+                    selectedLogo ? "border-green-500" : "border-gray-500"
+                  }`}
                 >
                   {selectedLogo ? (
                     <img
@@ -292,12 +414,13 @@ const AdminPokerTour = () => {
               />
             </div>
           </div>
-          <div className='flex flex-col justify-start items-center w-[50%]'>
-            <div className='w-full flex-col flex gap-3'>
+          <div className="flex flex-col justify-start items-center w-[50%]">
+            <div className="w-full flex-col flex gap-3">
               <div className="flex flex-col w-full items-center">
                 <div
-                  className={`rounded-2xl overflow-hidden w-72 h-48 border-4 ${selectedAvatar ? "border-green-500" : "border-gray-500"
-                    }`}
+                  className={`rounded-2xl overflow-hidden w-72 h-48 border-4 ${
+                    selectedAvatar ? "border-green-500" : "border-gray-500"
+                  }`}
                 >
                   {selectedAvatar ? (
                     <img
@@ -328,22 +451,27 @@ const AdminPokerTour = () => {
             </div>
             <div className="container mx-auto my-4">
               <h1 className="text-xl font-bold text-left">Description</h1>
-              <TextArea value={description} onContentChange={handleContentChange} />
+              <TextArea
+                value={description}
+                onContentChange={handleContentChange}
+              />
             </div>
           </div>
         </div>
-        <div className='mt-4 pb-4 flex justify-center items-center w-[full] gap-6'>
+        <div className="mt-4 pb-4 flex justify-center items-center w-[full] gap-6">
           <ButtonAdmin
             isFormComplete={isFormComplete}
-            color="blue" onClick={clickAddPokerTour} >
+            color="blue"
+            onClick={clickAddPokerTour}
+          >
             Add New Poker Tour
           </ButtonAdmin>
         </div>
       </div>
 
       <div className="mt-5 rounded-lg bg-white shadow-xl">
-        <div className='px-8 py-4 text-left'>
-          <h1 className='text-2xl font-bold text-left'>List Poker Tours</h1>
+        <div className="px-8 py-4 text-left">
+          <h1 className="text-2xl font-bold text-left">List Poker Tours</h1>
         </div>
         <div className="text-left p-6 border-b flex justify-between items-center border-solid md:flex-row md:items-center md:gap-0 border-secondary text-sm md:text-base">
           <div>
@@ -394,10 +522,11 @@ const AdminPokerTour = () => {
                 <tr
                   key={index}
                   className={`border-b-[5px] shadow-sm border-solid border-[#f4f4f9]
-                  ${index % 2 === 0
+                  ${
+                    index % 2 === 0
                       ? "border-l-4 border-l-blue-500"
                       : "border-l-4 border-l-green-500"
-                    }
+                  }
                   `}
                 >
                   <td className=" px-[16px] py-[20px] text-left min-w-[80px] pl-[24px] pr-[8px]">
@@ -411,20 +540,21 @@ const AdminPokerTour = () => {
                   </td>
                   <td
                     onClick={() => handleSelectDetailsPokerTour(row)}
-                    className="px-[16px] py-[20px] text-center font-bold hover:text-blue-400 min-w-[80px] underline cursor-pointer">
+                    className="px-[16px] py-[20px] text-center font-bold hover:text-blue-400 min-w-[80px] underline cursor-pointer"
+                  >
                     {row.name}
                   </td>
                   <td className="px-[16px] py-[20px] text-center font-bold text-blue-400 min-w-[80px]">
                     {row.shortName}
                   </td>
                   <td className="px-[16px] py-[20px] text-center min-w-[80px]">
-                    <div className='flex justify-center items-center'>
+                    <div className="flex justify-center items-center">
                       <img
                         src={row.logo}
                         className="rounded-full object-cover w-10 h-10"
                         alt=""
-                      /></div>
-
+                      />
+                    </div>
                   </td>
                   <td className="px-[16px] py-[20px] text-center flex justify-center items-center font-bold text-green-400 min-w-[80px]">
                     <img
@@ -451,10 +581,7 @@ const AdminPokerTour = () => {
                           <div className="relative">
                             <div className="absolute top-[-11px] right-[6px] transform -translate-x-1/2 bg-[#efefef] w-3 h-3 rotate-45"></div>
                           </div>
-                          <button
-                            className=" flex gap-3 justify-center items-center hover:text-[#2a4c87] w-full text-left px-4 py-2 text-gray-700 "
-
-                          >
+                          <button className=" flex gap-3 justify-center items-center hover:text-[#2a4c87] w-full text-left px-4 py-2 text-gray-700 ">
                             <FontAwesomeIcon
                               className="text-xl"
                               icon={faEdit}
@@ -463,7 +590,7 @@ const AdminPokerTour = () => {
                           </button>
                           <button
                             className="flex gap-3 justify-center hover:text-[#f45d5d] items-center w-full text-left px-4 py-2 text-red-600 "
-                          // onClick={() => handleDelete(row)}
+                            onClick={() => clickDeletePokerTour(row._id)}
                           >
                             <FontAwesomeIcon
                               className="text-xl"
@@ -485,10 +612,11 @@ const AdminPokerTour = () => {
             (page) => (
               <button
                 key={page}
-                className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300 ${page === currentPage
-                  ? "bg-blue-500 text-white"
-                  : "bg-white text-gray-700"
-                  }`}
+                className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300 ${
+                  page === currentPage
+                    ? "bg-blue-500 text-white"
+                    : "bg-white text-gray-700"
+                }`}
                 onClick={() => handlePageChange(page)}
               >
                 {page}
@@ -514,13 +642,16 @@ const AdminPokerTour = () => {
                 Details Information Poker Tour
               </h1>
             </div>
-            <div className='px-8 pb-4 mt-8 flex gap-6'>
-              <div className='flex flex-col justify-start items-center w-[50%]'>
-                <div className='w-full flex-col flex gap-5'>
+            <div className="px-8 pb-4 mt-8 flex gap-6">
+              <div className="flex flex-col justify-start items-center w-[50%]">
+                <div className="w-full flex-col flex gap-5">
                   <div className="flex flex-col w-full items-center">
                     <div
-                      className={`rounded-full overflow-hidden w-48 h-48 border-4 ${selectedLogoModal ? "border-green-500" : "border-gray-500"
-                        }`}
+                      className={`rounded-full overflow-hidden w-48 h-48 border-4 ${
+                        selectedLogoModal
+                          ? "border-green-500"
+                          : "border-gray-500"
+                      }`}
                     >
                       {selectedLogoModal ? (
                         <img
@@ -534,19 +665,19 @@ const AdminPokerTour = () => {
                         </div>
                       )}
                     </div>
-                    {/* <label
-                      htmlFor="image-input"
+                    <label
+                      htmlFor="image-input-modalLogo"
                       className="mt-4 px-4 py-2 bg-blue-500 text-base rounded-2xl text-white font-bold cursor-pointer custom-file-input"
                     >
                       Edit LOGO
                       <input
                         type="file"
-                        id="image-input"
+                        id="image-input-modalLogo"
                         accept="image/*"
-                        onChange={handleImageChange}
+                        onChange={handleImageModalChange}
                         className="hidden"
                       />
-                    </label> */}
+                    </label>
                   </div>
                   <InputAdmin
                     type="text"
@@ -566,12 +697,15 @@ const AdminPokerTour = () => {
                   />
                 </div>
               </div>
-              <div className='flex flex-col justify-start items-center w-[50%]'>
-                <div className='w-full flex-col flex gap-3'>
+              <div className="flex flex-col justify-start items-center w-[50%]">
+                <div className="w-full flex-col flex gap-3">
                   <div className="flex flex-col w-full items-center">
                     <div
-                      className={`rounded-2xl overflow-hidden w-72 h-48 border-4 ${selectedAvatarModal ? "border-green-500" : "border-gray-500"
-                        }`}
+                      className={`rounded-2xl overflow-hidden w-72 h-48 border-4 ${
+                        selectedAvatarModal
+                          ? "border-green-500"
+                          : "border-gray-500"
+                      }`}
                     >
                       {selectedAvatarModal ? (
                         <img
@@ -585,32 +719,44 @@ const AdminPokerTour = () => {
                         </div>
                       )}
                     </div>
-                    {/* <label
-                      htmlFor="image-input-avt"
+                    <label
+                      htmlFor="image-input-avtModal"
                       className="mt-4 px-4 py-2 bg-blue-500 text-base rounded-2xl text-white font-bold cursor-pointer custom-file-input"
                     >
                       Edit Avatar
                       <input
                         type="file"
-                        id="image-input-avt"
+                        id="image-input-avtModal"
                         accept="image/*"
-                        onChange={handleAvartarChange}
+                        onChange={handleAvartarModalChange}
                         className="hidden"
                       />
-                    </label> */}
+                    </label>
                   </div>
                 </div>
                 <div className="container mx-auto my-4">
                   <h1 className="text-xl font-bold text-left">Description</h1>
-                  <TextArea value={descriptionModal} onContentChange={handleContentChangeModal} />
+                  <TextArea
+                    value={descriptionModal}
+                    onContentChange={handleContentChangeModal}
+                  />
                 </div>
               </div>
+            </div>
+            <div className="mt-4 pb-4 flex justify-center items-center w-[full] gap-6">
+              <ButtonAdmin
+                isFormComplete={isFormCompleteModal}
+                color="blue"
+                onClick={clickUpdatePokerTour}
+              >
+                Update Poker Tour
+              </ButtonAdmin>
             </div>
           </div>
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default AdminPokerTour
+export default AdminPokerTour;

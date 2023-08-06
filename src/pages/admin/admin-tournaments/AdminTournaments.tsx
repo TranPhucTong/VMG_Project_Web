@@ -1,14 +1,15 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import storage from "../../../firebase/firebase";
 import { uploadBytesResumable, ref, getDownloadURL } from "firebase/storage";
-import InputAdmin from '../../../components/components-admin/InputAdmin';
-import OrganizationalCheckbox from '../../../components/components-admin/OrganizationalCheckbox';
-import ButtonAdmin from '../../../components/components-admin/ButtonAdmin';
-import adminTournamentsApi from '../../../api/adminTournamentsApi';
-import { faEdit, faEllipsis, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
+import InputAdmin from "../../../components/components-admin/InputAdmin";
+import OrganizationalCheckbox from "../../../components/components-admin/OrganizationalCheckbox";
+import ButtonAdmin from "../../../components/components-admin/ButtonAdmin";
+import adminTournamentsApi from "../../../api/adminTournamentsApi";
+import { faEdit, faEllipsis, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useNavigate } from "react-router-dom";
+import configRoutes from "../../../config/configRouter";
 
 interface TournamentsCreat {
   nameTour: string;
@@ -46,24 +47,27 @@ const formatDate = (dateString: string) => {
 const AdminTournaments = () => {
   const [selectedImageTour, setSelectedImageTour] = useState<string | null>("");
   const [nameTour, setNameTour] = useState("");
-  const [dateTourStart, setDateTourStart] = useState("")
+  const [dateTourStart, setDateTourStart] = useState("");
   const [dateTourEnd, setDateTourEnd] = useState("");
   const [venueEvent, setVenueEvent] = useState("");
 
   const [isChecked, setIsChecked] = useState(false);
   const [isFormComplete, setIsFormComplete] = useState(true);
 
-  const [selectedPokerTour, setSelectedPokerTour] = useState<PokerTours | null>(null);
-  const [selectedPokerRoom, setSelectedPokerRoom] = useState<PokerRooms | null>(null);
-
+  const [selectedPokerTour, setSelectedPokerTour] = useState<PokerTours | null>(
+    null
+  );
+  const [selectedPokerRoom, setSelectedPokerRoom] = useState<PokerRooms | null>(
+    null
+  );
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
   const menuRef = useRef<HTMLDivElement>(null);
 
-
-  const [dataTournaments, setDataTournaments] = useState<TournamentsCreat[]>([]);
-
+  const [dataTournaments, setDataTournaments] = useState<TournamentsCreat[]>(
+    []
+  );
 
   const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -138,12 +142,27 @@ const AdminTournaments = () => {
     setIsChecked(false);
   };
   useEffect(() => {
-    if (nameTour !== "" && dateTourStart !== "" && dateTourEnd !== "" && venueEvent !== "" && selectedImageTour !== "" && (selectedPokerTour !== null || selectedPokerRoom !== null)) {
+    if (
+      nameTour !== "" &&
+      dateTourStart !== "" &&
+      dateTourEnd !== "" &&
+      venueEvent !== "" &&
+      selectedImageTour !== "" &&
+      (selectedPokerTour !== null || selectedPokerRoom !== null)
+    ) {
       setIsFormComplete(true);
     } else {
       setIsFormComplete(false);
     }
-  }, [nameTour, venueEvent, dateTourStart, dateTourEnd, selectedImageTour, selectedPokerTour,selectedPokerRoom]);
+  }, [
+    nameTour,
+    venueEvent,
+    dateTourStart,
+    dateTourEnd,
+    selectedImageTour,
+    selectedPokerTour,
+    selectedPokerRoom,
+  ]);
   const clickAddTournament = async () => {
     const dataCreate: Object = {
       nameTour: nameTour,
@@ -161,26 +180,25 @@ const AdminTournaments = () => {
       defauthValue();
     } catch (error) {
       console.log("Thất bại", error);
-      toast.error("Create failure. Please check your input again!!!")
+      toast.error("Create failure. Please check your input again!!!");
     }
   };
   const handleDelete = async (tournaments: any) => {
     try {
       const res = await adminTournamentsApi.deleteTournament(tournaments._id);
       console.log(res);
-      toast.success("Xóa event thành công");
+      toast.success("Xóa tournament thành công");
       setCurrentPage(1);
     } catch (error) {
       console.log(error);
-      toast.error("Xóa thất bại ")
+      toast.error("Xóa thất bại ");
     }
-  }
+  };
 
   const fetchData = async () => {
     const res = await adminTournamentsApi.getAllTournaments();
     setDataTournaments(res.data.data);
   };
-
 
   const totalPages: number = Math.ceil(dataTournaments.length / rowsPerPage);
   const handleRowsPerPageChange = (
@@ -194,7 +212,10 @@ const AdminTournaments = () => {
   };
   const startIndex: number = (currentPage - 1) * rowsPerPage;
   const endIndex: number = startIndex + rowsPerPage;
-  const currentRows: TournamentsCreat[] = dataTournaments.slice(startIndex, endIndex);
+  const currentRows: TournamentsCreat[] = dataTournaments.slice(
+    startIndex,
+    endIndex
+  );
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
   const handleMenuToggle = (rowIndex: number) => {
     setSelectedRow(selectedRow === rowIndex ? null : rowIndex);
@@ -226,10 +247,16 @@ const AdminTournaments = () => {
 
   function truncateText(text: string, maxLength: number): string {
     if (text.length > maxLength) {
-      return text.slice(0, maxLength) + '...';
+      return text.slice(0, maxLength) + "...";
     }
     return text;
   }
+
+  //Details
+  const navigate = useNavigate();
+  const handleSelectDetailsTournament = (tournament: any) => {
+    navigate(`${configRoutes.adminTournamentsDetails}/${tournament._id}`);
+  };
   return (
     <div>
       <div className="flex justify-between gap-8 items-center">
@@ -238,22 +265,24 @@ const AdminTournaments = () => {
             Tournaments
           </h1>
           <p className="font-normal tracking-wide flex gap-1 justify-center items-center text-sm">
-            Quantity:{" "}
-            <span className="text-blue-400 font-bold">20</span>
+            Quantity: <span className="text-blue-400 font-bold">20</span>
           </p>
         </div>
       </div>
       <div className="mt-5 rounded-lg bg-white shadow-xl">
-        <div className='px-8 py-4 text-left'>
-          <h1 className='text-2xl font-bold text-left'>Create New Tournament</h1>
+        <div className="px-8 py-4 text-left">
+          <h1 className="text-2xl font-bold text-left">
+            Create New Tournament
+          </h1>
         </div>
-        <div className='px-8 pb-4 flex gap-6 h-auto'>
-          <div className='flex flex-col justify-center items-center w-[50%]'>
-            <div className='w-full flex-col flex gap-3'>
+        <div className="px-8 pb-4 flex gap-6 h-auto">
+          <div className="flex flex-col justify-center items-center w-[50%]">
+            <div className="w-full flex-col flex gap-3">
               <div className="flex flex-col w-full items-center">
                 <div
-                  className={`rounded-full overflow-hidden w-48 h-48 border-4 ${selectedImageTour ? "border-green-500" : "border-gray-500"
-                    }`}
+                  className={`rounded-full overflow-hidden w-48 h-48 border-4 ${
+                    selectedImageTour ? "border-green-500" : "border-gray-500"
+                  }`}
                 >
                   {selectedImageTour ? (
                     <img
@@ -291,10 +320,10 @@ const AdminTournaments = () => {
               />
             </div>
           </div>
-          <div className='flex flex-col justify-center h-full items-center w-[50%]'>
-            <div className='w-full flex-col justify-between h-full flex gap-3'>
-              <div className='flex justify-start gap-8 items-center'>
-                <div className='w-[50%]'>
+          <div className="flex flex-col justify-center h-full items-center w-[50%]">
+            <div className="w-full flex-col justify-between h-full flex gap-3">
+              <div className="flex justify-start gap-8 items-center">
+                <div className="w-[50%]">
                   <InputAdmin
                     type="date"
                     value={dateTourStart}
@@ -303,8 +332,8 @@ const AdminTournaments = () => {
                     placeholder="Vui lòng nhập ở đây"
                   />
                 </div>
-                <div className='mt-6'>-</div>
-                <div className='w-[50%]'>
+                <div className="mt-6">-</div>
+                <div className="w-[50%]">
                   <InputAdmin
                     type="date"
                     value={dateTourEnd}
@@ -314,22 +343,28 @@ const AdminTournaments = () => {
                   />
                 </div>
               </div>
-              <div className=''>
-                <OrganizationalCheckbox defaultPokerRoom={""} defaultPokerTour={""} onPokerTourChange={handlePokerTourChange}
-                  onPokerRoomChange={handlePokerRoomChange} />
+              <div className="">
+                <OrganizationalCheckbox
+                  defaultPokerRoom={""}
+                  defaultPokerTour={""}
+                  onPokerTourChange={handlePokerTourChange}
+                  onPokerRoomChange={handlePokerRoomChange}
+                />
               </div>
-              <div className='flex justify-between gap-2 items-center'>
-                <div className='w-[70%]'>
+              <div className="flex justify-between gap-2 items-center">
+                <div className="w-[70%]">
                   <InputAdmin
                     type="text"
-                    value={isChecked ? selectedPokerRoom?.Adress || "" : venueEvent}
+                    value={
+                      isChecked ? selectedPokerRoom?.Adress || "" : venueEvent
+                    }
                     onChange={handlEvenueEventtChange}
                     label="Venue Event"
                     placeholder="Vui lòng nhập ở đây"
                   />
                 </div>
                 {selectedPokerRoom !== null ? (
-                  <div className='w-[30%] flex mt-6 gap-1 justify-center items-center'>
+                  <div className="w-[30%] flex mt-6 gap-1 justify-center items-center">
                     <input
                       type="checkbox"
                       checked={isChecked} // Đảm bảo checkbox được chọn khi có selectedPokerRoom
@@ -337,13 +372,16 @@ const AdminTournaments = () => {
                     />
                     <p>Adress Poker Room</p>
                   </div>
-                ) : ("")}
-
+                ) : (
+                  ""
+                )}
               </div>
-              <div className='mt-4 pb-4 flex justify-center items-center w-[full] gap-6'>
+              <div className="mt-4 pb-4 flex justify-center items-center w-[full] gap-6">
                 <ButtonAdmin
                   isFormComplete={isFormComplete}
-                  color="blue" onClick={clickAddTournament} >
+                  color="blue"
+                  onClick={clickAddTournament}
+                >
                   Add New Tournament
                 </ButtonAdmin>
               </div>
@@ -353,8 +391,8 @@ const AdminTournaments = () => {
       </div>
 
       <div className="mt-5 rounded-lg bg-white shadow-xl">
-        <div className='px-8 py-4 text-left'>
-          <h1 className='text-2xl font-bold text-left'>List Tournaments</h1>
+        <div className="px-8 py-4 text-left">
+          <h1 className="text-2xl font-bold text-left">List Tournaments</h1>
         </div>
         <div className="text-left p-6 border-b flex justify-between items-center border-solid md:flex-row md:items-center md:gap-0 border-secondary text-sm md:text-base">
           <div>
@@ -409,10 +447,11 @@ const AdminTournaments = () => {
                 <tr
                   key={index}
                   className={`border-b-[5px] shadow-sm border-solid border-[#f4f4f9]
-                  ${index % 2 === 0
+                  ${
+                    index % 2 === 0
                       ? "border-l-4 border-l-blue-500"
                       : "border-l-4 border-l-green-500"
-                    }
+                  }
                   `}
                 >
                   <td className=" px-[16px] py-[20px] text-left min-w-[80px] pl-[24px] pr-[8px]">
@@ -425,8 +464,9 @@ const AdminTournaments = () => {
                     {startIndex + index + 1}
                   </td>
                   <td
-                    //  onClick={() => handleSelectDetailsEvent(row)} 
-                    className="px-[16px] py-[20px] text-center min-w-[80px] underline cursor-pointer hover:text-blue-500 font-medium transition-all duration-100 ease-in-out">
+                    onClick={() => handleSelectDetailsTournament(row)}
+                    className="px-[16px] py-[20px] text-center min-w-[80px] underline cursor-pointer hover:text-blue-500 font-medium transition-all duration-100 ease-in-out"
+                  >
                     {row.nameTour}
                   </td>
                   <td className="px-[16px] py-[20px] text-center  font-bold text-blue-400 min-w-[80px]">
@@ -459,10 +499,7 @@ const AdminTournaments = () => {
                           <div className="relative">
                             <div className="absolute top-[-11px] right-[6px] transform -translate-x-1/2 bg-[#efefef] w-3 h-3 rotate-45"></div>
                           </div>
-                          <button
-                            className=" flex gap-3 justify-center items-center hover:text-[#2a4c87] w-full text-left px-4 py-2 text-gray-700 "
-
-                          >
+                          <button className=" flex gap-3 justify-center items-center hover:text-[#2a4c87] w-full text-left px-4 py-2 text-gray-700 ">
                             <FontAwesomeIcon
                               className="text-xl"
                               icon={faEdit}
@@ -493,10 +530,11 @@ const AdminTournaments = () => {
             (page) => (
               <button
                 key={page}
-                className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300 ${page === currentPage
-                  ? "bg-blue-500 text-white"
-                  : "bg-white text-gray-700"
-                  }`}
+                className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300 ${
+                  page === currentPage
+                    ? "bg-blue-500 text-white"
+                    : "bg-white text-gray-700"
+                }`}
                 onClick={() => handlePageChange(page)}
               >
                 {page}
@@ -506,7 +544,7 @@ const AdminTournaments = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AdminTournaments
+export default AdminTournaments;

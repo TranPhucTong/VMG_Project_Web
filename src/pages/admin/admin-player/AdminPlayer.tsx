@@ -19,7 +19,7 @@ import { toast } from "react-toastify";
 import configRoutes from "../../../config/configRouter";
 
 interface TableRow {
-  _id: number;
+  _id: string;
   playerName: string;
   linkInfo: string;
   avatarImage: string;
@@ -31,17 +31,14 @@ interface TableRow {
   rank: number;
 }
 const AdminPlayer = () => {
-
-
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
   const [data, setData] = useState<TableRow[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
   const [selectValue, setSelectValue] = useState<string>("totalWin");
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchType, setSearchType] = useState<string | number>('');
-
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchType, setSearchType] = useState<string | number>("");
 
   const handleSearchTermChange = (value: string | number) => {
     setSearchTerm(String(value));
@@ -58,11 +55,6 @@ const AdminPlayer = () => {
 
   const handleSelectChange = (value: any) => {
     setSelectValue(value);
-  };
-
-  const handleDelete = (row: TableRow) => {
-    // Xử lý logic xóa dữ liệu
-    console.log("Delete row:", row);
   };
 
   const clickAddPlayer = async () => {
@@ -105,7 +97,10 @@ const AdminPlayer = () => {
       }
     } else if (searchType === "country" && searchTerm !== "") {
       try {
-        const res = await playerApi.getPlayersSortCountry(searchTerm, selectValue);
+        const res = await playerApi.getPlayersSortCountry(
+          searchTerm,
+          selectValue
+        );
         setData(res.data.players);
         console.log("Thành công country", res);
         setCurrentPage(1); // Cập nhật currentPage thành trang 1 sau khi tìm kiếm
@@ -118,15 +113,14 @@ const AdminPlayer = () => {
       setData(res.data.players);
       setCurrentPage(1); // Cập nhật currentPage thành trang 1 khi không có tìm kiếm
     }
-  }
-  
+  };
 
   const cleanSearch = () => {
     setSelectValue("totalWin");
     setSearchTerm("");
     setSearchType("");
     fetchData();
-  }
+  };
 
   let totalPlayer = 0;
 
@@ -152,12 +146,21 @@ const AdminPlayer = () => {
   const endIndex: number = startIndex + rowsPerPage;
   const currentRows: TableRow[] = data.slice(startIndex, endIndex);
 
-
   const dispatch = useDispatch();
   const handleSelectUpdatePlayer = (player: any) => {
     // dispatch(updateRequirePlayer(player));
     // navigate(`/admin/player-update`);
     navigate(`${configRoutes.adminUpdatePlayer}/${player._id}`);
+  };
+
+  const deletePlayer = async (id: string) => {
+    try {
+      const res = await playerApi.deletePlayer(id);
+      toast.success("Xóa người chơi thành công!!!");
+      fetchData();
+    } catch (error) {
+      toast.error("Xóa người chơi thất bại. Vui lòng thử lại!!!");
+    }
   };
 
   return (
@@ -202,7 +205,10 @@ const AdminPlayer = () => {
             </select>
           </div>
           <div className="flex justify-center items-center gap-4 mr-8">
-            <button onClick={cleanSearch} className="flex justify-center items-center gap-2 bg-green-500 rounded-2xl text-white py-1 px-3 hover:opacity-90 duration-150 transition-all ease-in-out ">
+            <button
+              onClick={cleanSearch}
+              className="flex justify-center items-center gap-2 bg-green-500 rounded-2xl text-white py-1 px-3 hover:opacity-90 duration-150 transition-all ease-in-out "
+            >
               <FontAwesomeIcon icon={faBroom} />
               <p>Clean</p>
             </button>
@@ -234,15 +240,16 @@ const AdminPlayer = () => {
                 onChange={handleSearchTermChange}
                 placeholder="Search here"
               />
-              <span onClick={() => handleSearch()} className="absolute cursor-pointer inset-y-0 -right-7 flex items-center p-3 text-white font-bold bg-blue-500 rounded-r-xl">
+              <span
+                onClick={() => handleSearch()}
+                className="absolute cursor-pointer inset-y-0 -right-7 flex items-center p-3 text-white font-bold bg-blue-500 rounded-r-xl"
+              >
                 <button className="text-white focus:outline-none">
                   <FontAwesomeIcon icon={faSearch} />
                 </button>
               </span>
             </div>
           </div>
-
-
         </div>
 
         <div className="overflow-x-auto pb-14">
@@ -284,10 +291,11 @@ const AdminPlayer = () => {
                 <tr
                   key={index}
                   className={`border-b-[5px] shadow-sm border-solid border-[#f4f4f9]
-                  ${index % 2 === 0
+                  ${
+                    index % 2 === 0
                       ? "border-l-4 border-l-blue-500"
                       : "border-l-4 border-l-green-500"
-                    }
+                  }
                   `}
                 >
                   <td className=" px-[16px] py-[20px] text-left min-w-[80px] pl-[24px] pr-[8px]">
@@ -305,12 +313,16 @@ const AdminPlayer = () => {
                       className="rounded-full object-cover w-10 h-10"
                       alt=""
                     />
-                    <a title="Info player" onClick={() => handleSelectUpdatePlayer(row)}>
+                    <a
+                      title="Info player"
+                      onClick={() => handleSelectUpdatePlayer(row)}
+                    >
                       {row.playerName}
                     </a>
                   </td>
                   <td className="px-[16px] py-[20px] text-center min-w-[80px]">
-                    {(row.totalWinnings).toLocaleString()} <span className="font-bold text-yellow-500">VNĐ</span>
+                    {row.totalWinnings.toLocaleString()}{" "}
+                    <span className="font-bold text-yellow-500">VNĐ</span>
                   </td>
                   <td className="px-[16px] py-[20px] text-center min-w-[80px]">
                     {row.vpoyPoint}
@@ -351,7 +363,7 @@ const AdminPlayer = () => {
                           </button>
                           <button
                             className="flex gap-3 justify-center hover:text-[#f45d5d] items-center w-full text-left px-4 py-2 text-red-600 "
-                            onClick={() => handleDelete(row)}
+                            onClick={() => deletePlayer(row._id)}
                           >
                             <FontAwesomeIcon
                               className="text-xl"
@@ -374,10 +386,11 @@ const AdminPlayer = () => {
             (page) => (
               <button
                 key={page}
-                className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300 ${page === currentPage
-                  ? "bg-blue-500 text-white"
-                  : "bg-white text-gray-700"
-                  }`}
+                className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300 ${
+                  page === currentPage
+                    ? "bg-blue-500 text-white"
+                    : "bg-white text-gray-700"
+                }`}
                 onClick={() => handlePageChange(page)}
               >
                 {page}

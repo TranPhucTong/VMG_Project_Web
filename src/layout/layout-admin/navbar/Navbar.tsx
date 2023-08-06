@@ -10,45 +10,61 @@ import {
   faHeart,
 } from "@fortawesome/free-solid-svg-icons";
 
-
 import { Link, useLocation } from "react-router-dom";
-import { BiAbacus,  } from "react-icons/bi";
+import { BiAbacus } from "react-icons/bi";
 import { TbTournament } from "react-icons/tb";
-import { FcHome, FcPortraitMode,FcCollaboration,FcOvertime, FcOk, FcOrganization } from "react-icons/fc";
-
-
+import {
+  FcHome,
+  FcPortraitMode,
+  FcCollaboration,
+  FcOvertime,
+  FcOk,
+  FcOrganization,
+} from "react-icons/fc";
 
 const Navbar = () => {
   const menus = [
     {
       name: "Home",
       link: "/admin/home",
-      icon: <FcHome className="text-xl transition-all ease-linear duration-500"/>,
+      icon: (
+        <FcHome className="text-xl transition-all ease-linear duration-500" />
+      ),
     },
     {
       name: "Player",
       link: "/admin/player",
-      icon: <FcPortraitMode className="text-xl transition-all ease-linear duration-500"/>,
+      icon: (
+        <FcPortraitMode className="text-xl transition-all ease-linear duration-500" />
+      ),
     },
     {
       name: "Tournaments",
       link: "/admin/tournaments",
-      icon: <FcOvertime className="text-xl transition-all ease-linear duration-500"/>,
+      icon: (
+        <FcOvertime className="text-xl transition-all ease-linear duration-500" />
+      ),
     },
     {
       name: "Events",
       link: "/admin/events",
-      icon: <FcOk className="text-xl transition-all ease-linear duration-500"/>,
+      icon: (
+        <FcOk className="text-xl transition-all ease-linear duration-500" />
+      ),
     },
     {
       name: "Poker Tour",
       link: "/admin/poker-tour",
-      icon: <FcOrganization className="text-xl transition-all ease-linear duration-500"/>,
+      icon: (
+        <FcOrganization className="text-xl transition-all ease-linear duration-500" />
+      ),
     },
     {
       name: "Poker Room",
       link: "/admin/poker-room",
-      icon:<FcCollaboration className="text-xl transition-all ease-linear duration-500"/>,
+      icon: (
+        <FcCollaboration className="text-xl transition-all ease-linear duration-500" />
+      ),
     },
     // {
     //   name: "analytics",
@@ -72,14 +88,17 @@ const Navbar = () => {
     if (location.pathname.includes("/admin/player")) {
       setSelectedItem("Player");
     } else if (location.pathname.includes("/admin/events")) {
-      setSelectedItem("Events")
+      setSelectedItem("Events");
+    } else if (location.pathname.includes("/admin/tournaments")) {
+      setSelectedItem("Tournaments");
     }
   }, [location]);
 
   return (
     <div
-      className={`bg-gradient-to-r from-[#2b343e] to-[#455260] min-h-screen ${open ? "w-72" : "w-16"
-        } duration-500 text-gray-100 px-4`}
+      className={`bg-gradient-to-r from-[#2b343e] to-[#455260] min-h-screen ${
+        open ? "w-72" : "w-16"
+      } duration-500 text-gray-100 px-4`}
     >
       <div className="py-3 flex justify-end">
         <FontAwesomeIcon
@@ -93,8 +112,9 @@ const Navbar = () => {
           <Link
             to={menu?.link}
             key={i}
-            className={` group pr-8 flex items-center text-sm  gap-3.5 font-medium p-2 hover:bg-gray-400 rounded-md ${selectedItem === menu.name ? "bg-white text-[#244785]" : ""
-              }`}
+            className={` group pr-8 flex items-center text-sm  gap-3.5 font-medium p-2 hover:bg-gray-400 rounded-md ${
+              selectedItem === menu.name ? "bg-white text-[#244785]" : ""
+            }`}
           >
             <div>
               {/* <FontAwesomeIcon
@@ -108,15 +128,17 @@ const Navbar = () => {
               style={{
                 transitionDelay: `${i + 3}00ms`,
               }}
-              className={`whitespace-pre transition-all ease-linear duration-500 text-xl ${!open && "opacity-0 translate-x-28 overflow-hidden "
-                }`}
+              className={`whitespace-pre transition-all ease-linear duration-500 text-xl ${
+                !open && "opacity-0 translate-x-28 overflow-hidden "
+              }`}
             >
               {menu?.name}
             </h2>
 
             <h2
-              className={`${open && "hidden"
-                } absolute  left-48 bg-white font-semibold whitespace-pre text-gray-900 rounded-md drop-shadow-lg px-0 py-0 w-0 overflow-hidden group-hover:px-2 group-hover:py-1 group-hover:left-14 group-hover:duration-300 group-hover:w-fit  `}
+              className={`${
+                open && "hidden"
+              } absolute  left-48 bg-white font-semibold whitespace-pre text-gray-900 rounded-md drop-shadow-lg px-0 py-0 w-0 overflow-hidden group-hover:px-2 group-hover:py-1 group-hover:left-14 group-hover:duration-300 group-hover:w-fit  `}
             >
               {menu?.name}
             </h2>

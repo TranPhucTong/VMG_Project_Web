@@ -11,6 +11,7 @@ const configRoutes = {
   adminEvents: "/admin/events",
   adminEventsDetails: "/admin/events-details",
   adminTournaments: "/admin/tournaments",
+  adminTournamentsDetails: "/admin/tournaments-details",
   adminPokerTour: "/admin/poker-tour",
   adminPokerRoom: "/admin/poker-room",
 };

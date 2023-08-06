@@ -8,6 +8,7 @@ import AdminUpdatePlayer from "../pages/admin/admin-player/AdminUpdatePlayer";
 import AdminPokerRoom from "../pages/admin/admin-poker-room/AdminPokerRoom";
 import AdminPokerTour from "../pages/admin/admin-poker-tour/AdminPokerTour";
 import AdminTournaments from "../pages/admin/admin-tournaments/AdminTournaments";
+import AdminTournamentsDetails from "../pages/admin/admin-tournaments/AdminTournamentsDetails";
 import Home from "../pages/home/Home";
 import LiveEvent from "../pages/live_event/LiveEvent";
 import News from "../pages/news/News";
@@ -48,12 +49,16 @@ export const adminRoutes = [
     component: AdminEvents,
   },
   {
-    path:`${configRoutes.adminEventsDetails}/:id`,
+    path: `${configRoutes.adminEventsDetails}/:id`,
     component: AdminInfoEvents,
   },
   {
     path: configRoutes.adminTournaments,
     component: AdminTournaments,
+  },
+  {
+    path: `${configRoutes.adminTournamentsDetails}/:id`,
+    component: AdminTournamentsDetails,
   },
   {
     path: configRoutes.adminPokerTour,
