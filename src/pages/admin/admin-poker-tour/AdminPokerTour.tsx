@@ -195,23 +195,23 @@ const AdminPokerTour = () => {
     if (
       namePokerTour !== "" &&
       selectedAvatar !== "" &&
-      selectedLogo !== "" &&
+      selectedLogo !== "" 
       // shortName !== "" &&
-      description !== ""
+      // description !== ""
     ) {
       setIsFormComplete(true);
     } else {
       setIsFormComplete(false);
     }
-  }, [namePokerTour, selectedAvatar, selectedLogo, description]);
+  }, [namePokerTour, selectedAvatar, selectedLogo]);
 
   useEffect(() => {
     if (
       namePokerTourModal !== "" &&
       selectedAvatarModal !== "" &&
-      selectedLogoModal !== "" &&
+      selectedLogoModal !== "" 
       // shortNameModal !== "" &&
-      descriptionModal !== ""
+      // descriptionModal !== ""
     ) {
       setIsFormCompleteModal(true);
     } else {
@@ -222,7 +222,7 @@ const AdminPokerTour = () => {
     selectedAvatarModal,
     selectedLogoModal,
     // shortNameModal,
-    descriptionModal,
+    // descriptionModal,
   ]);
 
   const defauthValue = () => {

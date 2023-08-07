@@ -148,7 +148,7 @@ const AdminUpdatePlayer = () => {
             avatarImage: selectedImage,
             country: country,
             city: city,
-            linkInfo: linkInfo ? linkInfo : "",
+            linkInfo: linkInfo,
         };
         if (typeof id === 'string') {
             try {

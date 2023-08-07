@@ -10,6 +10,7 @@ import { faEdit, faEllipsis, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
 import configRoutes from "../../../config/configRouter";
+import defaultImageTournament from "../../../images/tournament_poker.png";
 
 interface TournamentsCreat {
   nameTour: string;
@@ -45,7 +46,7 @@ const formatDate = (dateString: string) => {
 };
 
 const AdminTournaments = () => {
-  const [selectedImageTour, setSelectedImageTour] = useState<string | null>("");
+  const [selectedImageTour, setSelectedImageTour] = useState<string | null>(defaultImageTournament);
   const [nameTour, setNameTour] = useState("");
   const [dateTourStart, setDateTourStart] = useState("");
   const [dateTourEnd, setDateTourEnd] = useState("");
@@ -137,7 +138,6 @@ const AdminTournaments = () => {
     setNameTour("");
     setDateTourStart("");
     setDateTourEnd("");
-    setSelectedImageTour("");
     setVenueEvent("");
     setIsChecked(false);
   };

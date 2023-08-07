@@ -94,9 +94,8 @@ const AdminAddPlayer = () => {
   }, [namePlayer, getCountry, selectedState, selectedImage]);
 
   const defauthValue = () => {
-    setSelectedImage(null);
+    // setSelectedImage(null);
     setNamePlayer("");
-    setSelectedState("");
     setCountry("Vietnam");
     setLinkInfo("");
   }
