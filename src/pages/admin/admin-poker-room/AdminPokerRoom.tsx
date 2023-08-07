@@ -207,21 +207,21 @@ const AdminPokerRoom = () => {
       namePokerRoom !== "" &&
       selectedAvatar !== "" &&
       selectedLogo !== "" &&
-      shortName !== "" &&
+      // shortName !== "" &&
       description !== ""
     ) {
       setIsFormComplete(true);
     } else {
       setIsFormComplete(false);
     }
-  }, [namePokerRoom, selectedAvatar, selectedLogo, shortName, description]);
+  }, [namePokerRoom, selectedAvatar, selectedLogo, description]);
 
   useEffect(() => {
     if (
       namePokerRoomModal !== "" &&
       selectedAvatarModal !== "" &&
       selectedLogoModal !== "" &&
-      shortNameModal !== "" &&
+      // shortNameModal !== "" &&
       descriptionModal !== ""
     ) {
       setIsFormCompleteModal(true);
@@ -232,7 +232,7 @@ const AdminPokerRoom = () => {
     namePokerRoomModal,
     selectedAvatarModal,
     selectedLogoModal,
-    shortNameModal,
+    // shortNameModal,
     descriptionModal,
   ]);
 
@@ -247,7 +247,7 @@ const AdminPokerRoom = () => {
   const clickAddPokerTour = async () => {
     const dataCreate: Object = {
       name: namePokerRoom,
-      shortName: shortName,
+      shortName: shortName ? shortName : "",
       logo: selectedLogo,
       avatar: selectedAvatar,
       description: description,

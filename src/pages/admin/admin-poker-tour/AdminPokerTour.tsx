@@ -196,21 +196,21 @@ const AdminPokerTour = () => {
       namePokerTour !== "" &&
       selectedAvatar !== "" &&
       selectedLogo !== "" &&
-      shortName !== "" &&
+      // shortName !== "" &&
       description !== ""
     ) {
       setIsFormComplete(true);
     } else {
       setIsFormComplete(false);
     }
-  }, [namePokerTour, selectedAvatar, selectedLogo, shortName, description]);
+  }, [namePokerTour, selectedAvatar, selectedLogo, description]);
 
   useEffect(() => {
     if (
       namePokerTourModal !== "" &&
       selectedAvatarModal !== "" &&
       selectedLogoModal !== "" &&
-      shortNameModal !== "" &&
+      // shortNameModal !== "" &&
       descriptionModal !== ""
     ) {
       setIsFormCompleteModal(true);
@@ -221,7 +221,7 @@ const AdminPokerTour = () => {
     namePokerTourModal,
     selectedAvatarModal,
     selectedLogoModal,
-    shortNameModal,
+    // shortNameModal,
     descriptionModal,
   ]);
 
