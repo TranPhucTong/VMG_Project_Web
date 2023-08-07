@@ -86,12 +86,12 @@ const AdminAddPlayer = () => {
   const [countryInfo, setCountryInfo] = useState<CountryInfo | null>(null);
 
   useEffect(() => {
-    if (namePlayer !== "" && getCountry !== undefined && selectedState !== undefined && selectedImage !== null) {
+    if (namePlayer !== "" && getCountry !== undefined && selectedImage !== null) {
       setIsFormComplete(true);
     } else {
       setIsFormComplete(false);
     }
-  }, [namePlayer, getCountry, selectedState, selectedImage]);
+  }, [namePlayer, getCountry, selectedImage]);
 
   const defauthValue = () => {
     // setSelectedImage(null);
@@ -105,7 +105,7 @@ const AdminAddPlayer = () => {
       playerName: namePlayer,
       avatarImage: selectedImage,
       country: getCountry,
-      city: selectedState,
+      city: selectedState ? selectedState : "",
       linkInfo: linkInfo ? linkInfo : "",
     };
 

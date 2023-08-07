@@ -153,11 +153,9 @@ const AdminUpdatePlayer = () => {
         if (typeof id === 'string') {
             try {
                 const response = await playerApi.updatePlayer(dataUpdatePlayer, id);
-                console.log("Thành công", response);
                 toast.success("Cập nhật thông tin người chơi thành công");
                 navigate("/admin/player");
             } catch (error) {
-                console.log("Thất bại", error);
                 toast.error("Thất bại. Hãy kiểm tra và thử lại!!!")
             }
         }

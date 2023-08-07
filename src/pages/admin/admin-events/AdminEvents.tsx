@@ -71,6 +71,7 @@ interface PokerTours {
   description: string;
 }
 
+
 const AdminEvents = () => {
   const [nameEvent, setNameEvent] = useState("");
   const [venueEvent, setVenueEvent] = useState("");
@@ -93,7 +94,8 @@ const AdminEvents = () => {
   const [isFormComplete, setIsFormComplete] = useState(false);
   const [isFormCompleteEventTour, setIsFormCompleteEventTour] = useState(false);
   const [isSave, setIsSave] = useState(false);
-  const [showVeRoomTour, setShowVeRoomTour] = useState(true);
+  const [showVeRoomTour, setShowVeRoomTour] = useState(false);
+  const [isAddToList, setIsAddToList] = useState(true);
 
 
   const [dataPlayer, setDataPlayer] = useState<TableRow[]>([]);
@@ -202,8 +204,24 @@ const AdminEvents = () => {
   };
 
   const handleBuyInChange = (value: string | number) => {
-    setBuyIn(Number(value));
+    const rawValue = value.toString();
+    const numericValue = Number(rawValue.replace(/[^0-9]/g, ''));
+    setBuyIn(numericValue);
   };
+  const formatBuyIn = (value: number | string) => {
+    // Kiểm tra nếu value không phải là một số hoặc rỗng, thì trả về giá trị ban đầu
+    if (isNaN(Number(value)) || value === "") {
+      return value;
+    }
+
+    // Định dạng số tiền với dấu chấm giữa hàng nghìn
+    return Number(value).toLocaleString('vi');
+  };
+
+  // Định dạng giá trị buyIn khi hiển thị trong ô input với dấu chấm giữa hàng nghìn
+  const formattedBuyIn = formatBuyIn(buyIn);
+
+
   const handleEntriesChange = (value: string | number) => {
     setEntries(Number(value));
   };
@@ -236,19 +254,39 @@ const AdminEvents = () => {
   };
 
   const handlePrizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPrize(event.target.value);
+    const rawValue = event.target.value;
+    const numericValue = Number(rawValue.replace(/[^0-9]/g, ''));
+    setPrize(numericValue);
   };
+  const formatPrize = (value: number | string) => {
+    // Kiểm tra nếu value không phải là một số hoặc rỗng, thì trả về giá trị ban đầu
+    if (isNaN(Number(value)) || value === "") {
+      return value;
+    }
+
+    // Định dạng số tiền với dấu chấm giữa hàng nghìn
+    return Number(value).toLocaleString('vi');
+  };
+
+  // Định dạng giá trị prize khi hiển thị trong ô input với dấu chấm giữa hàng nghìn
+  const formattedPrize = formatPrize(prize);
+
+
 
   const handleAddPlayer = () => {
     if (selectedPlayer && place && prize) {
       // Kiểm tra người chơi đã tồn tại trong newArray chưa
       const isPlayerExist = newArray.find((player) => player._id === selectedPlayer._id);
-
+      const isPlaceExist = newArray.some((player) => player.place === Number(place));
+  
       if (isPlayerExist) {
         // Nếu người chơi đã tồn tại, thông báo đã có
-        toast.success("Người chơi đã tồn tại trong danh sách!")
+        toast.success("Người chơi đã tồn tại trong danh sách!");
+      } else if (isPlaceExist) {
+        // Nếu rank đã tồn tại, hiển thị thông báo lỗi
+        toast.error("Rank này đã có trong danh sách!");
       } else {
-        // Nếu người chơi chưa tồn tại, thêm người chơi vào newArray
+        // Nếu người chơi và rank đều chưa tồn tại, thêm người chơi vào newArray
         setNewArray((prevArray) => [
           ...prevArray,
           {
@@ -264,6 +302,38 @@ const AdminEvents = () => {
       }
     }
   };
+  
+  const handleUpdatePlayer = () => {
+    if (selectedPlayer && place && prize) {
+      setNewArray((prevArray) =>
+        prevArray.map((player) =>
+          player._id === selectedPlayer._id
+            ? {
+              ...player,
+              playerName: selectedPlayer.playerName,
+              place: Number(place),
+              prize: Number(prize),
+            }
+            : player
+        )
+      );
+      setSelectedPlayer(null);
+      setPlace("");
+      setPrize(0);
+      setIsAddToList(true);
+    }
+  };
+
+
+  useEffect(() => {
+    if (selectedPlayer) {
+      // Kiểm tra xem selectedPlayer khác với các người chơi trong newArray
+      const isPlayerInArray = newArray.some((player) => player._id === selectedPlayer._id);
+      setIsAddToList(!isPlayerInArray); // Đặt lại trạng thái isAddToList
+    } else {
+      setIsAddToList(true); // Nếu không có selectedPlayer, đặt lại trạng thái isAddToList
+    }
+  }, [selectedPlayer, newArray])
 
   const handleRemovePlayer = (playerIdToRemove: string) => {
     setNewArray((prevArray) => prevArray.filter((player) => player._id !== playerIdToRemove));
@@ -396,6 +466,16 @@ const AdminEvents = () => {
   const handleChangeCheckBoxTour = (event: React.ChangeEvent<HTMLInputElement>) => {
     setShowVeRoomTour(!event.target.checked);
   };
+
+
+
+  const choosePlayer = (player: any) => {
+    setPrize(player.prize);
+    setPlace(player.place);
+    setSelectedPlayer(player);
+    setIsAddToList(false);
+  }
+
   return (
     <div>
       <div className="flex justify-between gap-8 items-center">
@@ -503,8 +583,8 @@ const AdminEvents = () => {
                 placeholder="Vui lòng nhập ở đây"
               />
               <InputAdmin
-                type="number"
-                value={buyIn}
+                type="text"
+                value={formattedBuyIn}
                 onChange={handleBuyInChange}
                 label="Buy In"
                 // validate={(value) => /^[A-Za-z\s]+$/.test(namePlayer)}
@@ -756,14 +836,19 @@ const AdminEvents = () => {
                   type="text"
                   className='border p-1'
                   id="prize-input"
-                  value={prize}
+                  value={formattedPrize}
                   onChange={handlePrizeChange}
                 />
               </div>
 
               <div className='flex justify-center items-center gap-4 w-full'>
-                <button className='px-4 py-2 rounded-xl bg-blue-500 text-white hover:opacity-90' onClick={handleAddPlayer}>Add To List</button>
-                <button className={`px-4 py-2 rounded-xl bg-green-500 text-white hover:opacity-90 ${isSave ? "" : "opacity-50 pointer-events-none disabled"}`} onClick={() => setShowAddPlayers(false)}>Save</button>
+                <button className={`px-4 py-2 rounded-xl bg-blue-500 text-white hover:opacity-90  ${isAddToList ? " " : "opacity-50 pointer-events-none disabled"}`} onClick={handleAddPlayer}>Add To List</button>
+                <button
+                  className={`px-4 py-2 rounded-xl bg-violet-500 text-white hover:opacity-90 ${isAddToList && "opacity-50 pointer-events-none disabled"}`}
+                  onClick={handleUpdatePlayer}
+                >
+                  Update to List
+                </button>
               </div>
 
 
@@ -780,9 +865,9 @@ const AdminEvents = () => {
                   </thead>
                   <tbody>
                     {sortedArray.map((player, index) => (
-                      <tr key={index} className={tableRowClass}>
+                      <tr key={index} className={`${tableRowClass} cursor-pointer`}>
                         <td className="border px-4 py-2">{player._id}</td>
-                        <td className="border px-4 py-2">{player.playerName}</td>
+                        <td onClick={() => choosePlayer(player)} className="border px-4 py-2 underline hover:text-blue-500">{player.playerName}</td>
                         <td className="border px-4 py-2">{player.place}</td>
                         <td className="border px-4 py-2">{(player.prize).toLocaleString()} VNĐ</td>
                         <td className="border px-4 py-2">
@@ -798,6 +883,7 @@ const AdminEvents = () => {
                   </tbody>
                 </table>
               </div>
+              <button className={`px-4 py-2 rounded-xl bg-green-500 text-white hover:opacity-90 ${isSave ? "" : "opacity-50 pointer-events-none disabled"}`} onClick={() => setShowAddPlayers(false)}>Save</button>
             </div>
           </div>
         </div>
