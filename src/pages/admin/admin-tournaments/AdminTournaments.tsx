@@ -276,13 +276,20 @@ const AdminTournaments = () => {
           </h1>
         </div>
         <div className="px-8 pb-4 flex gap-6 h-auto">
-          <div className="flex flex-col justify-center items-center w-[50%]">
+          <div className="flex flex-col justify-start items-center w-[50%]">
             <div className="w-full flex-col flex gap-3">
+              <InputAdmin
+                type="text"
+                value={nameTour}
+                onChange={handleNameTourChange}
+                label="Name Tour"
+                // validate={(value) => /^[A-Za-z\s]+$/.test(namePlayer)}
+                placeholder="Vui lòng nhập tên ở đây"
+              />
               <div className="flex flex-col w-full items-center">
                 <div
-                  className={`rounded-full overflow-hidden w-48 h-48 border-4 ${
-                    selectedImageTour ? "border-green-500" : "border-gray-500"
-                  }`}
+                  className={`rounded-full overflow-hidden w-48 h-48 border-4 ${selectedImageTour ? "border-green-500" : "border-gray-500"
+                    }`}
                 >
                   {selectedImageTour ? (
                     <img
@@ -310,14 +317,7 @@ const AdminTournaments = () => {
                   />
                 </label>
               </div>
-              <InputAdmin
-                type="text"
-                value={nameTour}
-                onChange={handleNameTourChange}
-                label="Name Tour"
-                // validate={(value) => /^[A-Za-z\s]+$/.test(namePlayer)}
-                placeholder="Vui lòng nhập tên ở đây"
-              />
+
             </div>
           </div>
           <div className="flex flex-col justify-center h-full items-center w-[50%]">
@@ -447,11 +447,10 @@ const AdminTournaments = () => {
                 <tr
                   key={index}
                   className={`border-b-[5px] shadow-sm border-solid border-[#f4f4f9]
-                  ${
-                    index % 2 === 0
+                  ${index % 2 === 0
                       ? "border-l-4 border-l-blue-500"
                       : "border-l-4 border-l-green-500"
-                  }
+                    }
                   `}
                 >
                   <td className=" px-[16px] py-[20px] text-left min-w-[80px] pl-[24px] pr-[8px]">
@@ -530,11 +529,10 @@ const AdminTournaments = () => {
             (page) => (
               <button
                 key={page}
-                className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300 ${
-                  page === currentPage
+                className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300 ${page === currentPage
                     ? "bg-blue-500 text-white"
                     : "bg-white text-gray-700"
-                }`}
+                  }`}
                 onClick={() => handlePageChange(page)}
               >
                 {page}
