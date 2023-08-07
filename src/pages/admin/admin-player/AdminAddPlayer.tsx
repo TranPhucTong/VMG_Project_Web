@@ -86,18 +86,18 @@ const AdminAddPlayer = () => {
   const [countryInfo, setCountryInfo] = useState<CountryInfo | null>(null);
 
   useEffect(() => {
-    if (namePlayer !== "" && getCountry !== undefined && selectedState !== undefined && linkInfo !== "" && selectedImage !== null) {
+    if (namePlayer !== "" && getCountry !== undefined && selectedState !== undefined && selectedImage !== null) {
       setIsFormComplete(true);
     } else {
       setIsFormComplete(false);
     }
-  }, [namePlayer, getCountry, selectedState, linkInfo, selectedImage]);
+  }, [namePlayer, getCountry, selectedState, selectedImage]);
 
   const defauthValue = () => {
     setSelectedImage(null);
     setNamePlayer("");
     setSelectedState("");
-    setCountry("");
+    setCountry("Vietnam");
     setLinkInfo("");
   }
 
@@ -107,7 +107,7 @@ const AdminAddPlayer = () => {
       avatarImage: selectedImage,
       country: getCountry,
       city: selectedState,
-      linkInfo: linkInfo,
+      linkInfo: linkInfo ? linkInfo : "",
     };
 
 

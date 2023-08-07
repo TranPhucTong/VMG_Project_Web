@@ -103,12 +103,12 @@ const AdminUpdatePlayer = () => {
     }
 
     useEffect(() => {
-        if (namePlayer !== "" && country !== "" && city !== "" && linkInfo !== "" && selectedImage !== "") {
+        if (namePlayer !== "" && country !== "" && city !== "" && selectedImage !== "") {
             setIsFormComplete(true);
         } else {
             setIsFormComplete(false);
         }
-    }, [namePlayer, country, city, linkInfo, selectedImage]);
+    }, [namePlayer, country, city, selectedImage]);
 
     useEffect(() => {
         fetchData();
@@ -148,7 +148,7 @@ const AdminUpdatePlayer = () => {
             avatarImage: selectedImage,
             country: country,
             city: city,
-            linkInfo: linkInfo,
+            linkInfo: linkInfo ? linkInfo : "",
         };
         if (typeof id === 'string') {
             try {
