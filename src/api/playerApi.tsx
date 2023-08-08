@@ -17,6 +17,9 @@ const playerApi = {
   getPlayersSortCity: (city: string, sortBy: string) => {
     return mainAxios.get(`${url}?city=${city}&${sortBy}=true`);
   },
+  getPlayerByName: (playerName : String) => {
+    return mainAxios.get(`${url}?playerName=${playerName}`)
+  },
   createPlayer: (data: Object) => {
     return mainAxios.post(`${url}`, { data });
   },

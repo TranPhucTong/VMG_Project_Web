@@ -105,13 +105,21 @@ const AdminPlayer = () => {
         console.log("Thành công country", res);
         setCurrentPage(1); // Cập nhật currentPage thành trang 1 sau khi tìm kiếm
       } catch (error) {
-        console.log("Lỗi country", error);
+        alert("Lỗi country");
       }
     } else if (searchTerm === "") {
       setSelectValue("totalWin");
       const res = await playerApi.getPlayer();
       setData(res.data.players);
       setCurrentPage(1); // Cập nhật currentPage thành trang 1 khi không có tìm kiếm
+    } else if (searchType === "playerName" && searchTerm !== ""){
+      try {
+        const res = await playerApi.getPlayerByName(searchTerm)
+        setData(res.data.players);
+        setCurrentPage(1);
+      } catch (error) {
+        alert("Có lỗi . Hãy kiểm tra lại!!!");
+      }
     }
   };
 
@@ -228,6 +236,7 @@ const AdminPlayer = () => {
                 { value: "", label: "Search by ..." },
                 { value: "city", label: "Search by City" },
                 { value: "country", label: "Search by country" },
+                { value: "playerName", label: "Search by Name Player" }
               ]}
               value={searchType}
               onChange={handleSearchTypeChange}
@@ -291,11 +300,10 @@ const AdminPlayer = () => {
                 <tr
                   key={index}
                   className={`border-b-[5px] shadow-sm border-solid border-[#f4f4f9]
-                  ${
-                    index % 2 === 0
+                  ${index % 2 === 0
                       ? "border-l-4 border-l-blue-500"
                       : "border-l-4 border-l-green-500"
-                  }
+                    }
                   `}
                 >
                   <td className=" px-[16px] py-[20px] text-left min-w-[80px] pl-[24px] pr-[8px]">
@@ -386,11 +394,10 @@ const AdminPlayer = () => {
             (page) => (
               <button
                 key={page}
-                className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300 ${
-                  page === currentPage
+                className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300 ${page === currentPage
                     ? "bg-blue-500 text-white"
                     : "bg-white text-gray-700"
-                }`}
+                  }`}
                 onClick={() => handlePageChange(page)}
               >
                 {page}

@@ -342,123 +342,123 @@ const AdminInfoEvents = () => {
         </div>
       </div>
       <h1 className="text-4xl font-bold text-center">Event Details</h1>
-      <div className="w-full flex justify-center gap-2 items-start mt-8">
-        <div className="w-[50%] flex flex-col gap-4 bg-white rounded-xl shadow-xl px-6 py-4">
-          <div className="flex justify-start items-center">
-            <h3 className="w-[30%] font-bold text-left text-xl">ID Event : </h3>
-            <p className="text-xl text-blue-500 font-bold w-[70%] text-right">
-              {id}
+      <div className="w-full mt-10 flex flex-col gap-4 bg-white rounded-xl shadow-xl px-6 py-4">
+        <div className="flex justify-start items-center">
+          <h3 className="w-[30%] font-bold text-left text-xl">ID Event : </h3>
+          <p className="text-xl text-blue-500 font-bold w-[70%] text-right">
+            {id}
+          </p>
+        </div>
+        <div className="flex justify-start items-center">
+          <h3 className="w-[30%] font-bold text-left text-xl">
+            Name Event :{" "}
+          </h3>
+          <p className="text-xl text-red-500 font-bold w-[70%] text-right">
+            {nameEvent}
+          </p>
+        </div>
+        <div className="flex justify-start items-center">
+          <h3 className="w-[30%] font-bold text-left text-xl">Buy In : </h3>
+          <p className="text-xl text-green-500 font-bold w-[70%] text-right">
+            {buyIn.toLocaleString()} VNĐ
+          </p>
+        </div>
+        <div className="flex justify-start items-center">
+          <h3 className="w-[30%] font-bold text-left text-xl">
+            Date Event :{" "}
+          </h3>
+          <p className="text-xl text-yellow-500 font-bold w-[70%] text-right">
+            {formatDate(dateEvent)}
+          </p>
+        </div>
+        <div className="flex justify-start items-center">
+          <h3 className="w-[30%] font-bold text-left text-xl">Entries : </h3>
+          <p className="text-xl text-violet-500 font-bold w-[70%] text-right">
+            {entries}
+          </p>
+        </div>
+        <div className="flex justify-start items-center">
+          <h3 className="w-[30%] font-bold text-left text-xl">
+            Organizational Units :{" "}
+          </h3>
+          <div className="flex flex-col justify-center items-end w-[70%]">
+            <p className="text-xl text-black font-bold  text-right">
+              {pokerTour?.name}{" "}
+              <span className="text-green-600">
+                ( {pokerTour?.shortName} )
+              </span>{" "}
+            </p>
+            <p className="text-xl text-black font-bold text-right">
+              {pokerRoom?.name}{" "}
+              <span className="text-green-600">
+                ( {pokerRoom?.shortName} )
+              </span>{" "}
             </p>
           </div>
-          <div className="flex justify-start items-center">
-            <h3 className="w-[30%] font-bold text-left text-xl">
-              Name Event :{" "}
-            </h3>
-            <p className="text-xl text-red-500 font-bold w-[70%] text-right">
-              {nameEvent}
-            </p>
-          </div>
-          <div className="flex justify-start items-center">
-            <h3 className="w-[30%] font-bold text-left text-xl">Buy In : </h3>
-            <p className="text-xl text-green-500 font-bold w-[70%] text-right">
-              {buyIn.toLocaleString()} VNĐ
-            </p>
-          </div>
-          <div className="flex justify-start items-center">
-            <h3 className="w-[30%] font-bold text-left text-xl">
-              Date Event :{" "}
-            </h3>
-            <p className="text-xl text-yellow-500 font-bold w-[70%] text-right">
-              {formatDate(dateEvent)}
-            </p>
-          </div>
-          <div className="flex justify-start items-center">
-            <h3 className="w-[30%] font-bold text-left text-xl">Entries : </h3>
-            <p className="text-xl text-violet-500 font-bold w-[70%] text-right">
-              {entries}
-            </p>
-          </div>
-          <div className="flex justify-start items-center">
-            <h3 className="w-[30%] font-bold text-left text-xl">
-              Organizational Units :{" "}
-            </h3>
-            <div className="flex flex-col justify-center items-end w-[70%]">
-              <p className="text-xl text-black font-bold  text-right">
-                {pokerTour?.name}{" "}
-                <span className="text-green-600">
-                  ( {pokerTour?.shortName} )
-                </span>{" "}
-              </p>
-              <p className="text-xl text-black font-bold text-right">
-                {pokerRoom?.name}{" "}
-                <span className="text-green-600">
-                  ( {pokerRoom?.shortName} )
-                </span>{" "}
-              </p>
-            </div>
-          </div>
-          <div className="flex justify-start items-center pb-2 border-b-[1px] border-gray-400">
-            <h3 className="w-[30%] font-bold text-left text-xl">
-              Venue Event :{" "}
-            </h3>
-            <p className="text-xl text-black font-bold w-[70%] text-right">
-              {venueEvent}
-            </p>
-          </div>
+        </div>
+        <div className="flex justify-start items-center pb-2 border-b-[1px] border-gray-400">
+          <h3 className="w-[30%] font-bold text-left text-xl">
+            Venue Event :{" "}
+          </h3>
+          <p className="text-xl text-black font-bold w-[70%] text-right">
+            {venueEvent}
+          </p>
+        </div>
 
-          <div className="flex justify-start items-center">
-            <h3 className="w-[30%] font-bold text-blue-400  text-left text-xl">
-              Total Prize :
-            </h3>
-            <p className="text-xl font-bold w-[70%] text-blue-400 text-right">
-              {totalPrize} VNĐ
-            </p>
-          </div>
+        <div className="flex justify-start items-center">
+          <h3 className="w-[30%] font-bold text-blue-400  text-left text-xl">
+            Total Prize :
+          </h3>
+          <p className="text-xl font-bold w-[70%] text-blue-400 text-right">
+            {totalPrize} VNĐ
+          </p>
         </div>
-        <div className="p-2 w-[50%] bg-white rounded-xl shadow-xl">
-          <div className="mb-4 text-left">
-            <h2 className="text-xl font-bold text-teal-500">
-              Competition Results
-            </h2>
-          </div>
-          <table className={`${tableClass} h-full`}>
-            <thead>
-              <tr>
-                <th className={tableHeaderClass}>Player Name</th>
-                <th className={tableHeaderClass}>Rank</th>
-                <th className={tableHeaderClass}>Prize</th>
+
+        <div className="flex justify-center items-center ">
+          <ButtonAdmin
+            isFormComplete={true}
+            color="blue"
+            onClick={clickShowUpdate}
+          >
+            Update Infomation Event
+          </ButtonAdmin>
+        </div>
+      </div>
+      <div className="p-2 w-full mt-10 bg-white rounded-xl shadow-xl">
+        <div className="mb-4 text-left">
+          <h2 className="text-xl font-bold text-teal-500">
+            Competition Results
+          </h2>
+        </div>
+        <table className={`${tableClass} h-full`}>
+          <thead>
+            <tr>
+              <th className={tableHeaderClass}>Player Name</th>
+              <th className={tableHeaderClass}>Rank</th>
+              <th className={tableHeaderClass}>Prize</th>
+            </tr>
+          </thead>
+          <tbody>
+            {resultsPrize.map((event, index) => (
+              <tr key={index} className={tableRowClass}>
+                <td
+                  onClick={() => handleSelectUpdatePlayer(event)}
+                  className="border px-4 py-2 cursor-pointer underline hover:text-blue-500"
+                >
+                  {event.playerName}
+                </td>
+                <td className="border px-4 py-2">
+                  {getRankFormat(event.place)}
+                </td>
+                <td className="border px-4 py-2">
+                  {event.prize.toLocaleString()}VNĐ
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {resultsPrize.map((event, index) => (
-                <tr key={index} className={tableRowClass}>
-                  <td
-                    onClick={() => handleSelectUpdatePlayer(event)}
-                    className="border px-4 py-2 cursor-pointer underline hover:text-blue-500"
-                  >
-                    {event.playerName}
-                  </td>
-                  <td className="border px-4 py-2">
-                    {getRankFormat(event.place)}
-                  </td>
-                  <td className="border px-4 py-2">
-                    {event.prize.toLocaleString()}VNĐ
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
-      <div className="flex justify-center items-center mt-10">
-        <ButtonAdmin
-          isFormComplete={true}
-          color="blue"
-          onClick={clickShowUpdate}
-        >
-          Update Infomation Event
-        </ButtonAdmin>
-      </div>
+
       {showModalUpdate && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center">
           <div className="absolute inset-0 bg-gray-950 opacity-50"></div>
@@ -590,7 +590,7 @@ const AdminInfoEvents = () => {
                 </div>
               </div>
             </div>
-            {dataEventID?.tourementID ? (
+            {dataEventID?.tourementID !== undefined ? (
               <div className="mt-10 pb-4 flex justify-center items-center w-[full] gap-6">
                 <ButtonAdmin
                   isFormComplete={isFormCompleteEventTour}

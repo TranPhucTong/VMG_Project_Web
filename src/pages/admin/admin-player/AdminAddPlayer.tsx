@@ -82,7 +82,7 @@ const AdminAddPlayer = () => {
   const [getCountry, setCountry] = useState<string | undefined>("Vietnam"); // Thêm giá trị mặc định là "Vietnam"
   const [getState, setState] = useState<string[]>([]);
   const [selectedState, setSelectedState] = useState<string | undefined>();
-  const [cities, setCities] = useState<City[]>([]);
+  // const [cities, setCities] = useState<City[]>([]);
   const [countryInfo, setCountryInfo] = useState<CountryInfo | null>(null);
 
   useEffect(() => {
@@ -107,6 +107,7 @@ const AdminAddPlayer = () => {
       country: getCountry,
       city: selectedState ? selectedState : "",
       linkInfo: linkInfo ? linkInfo : "",
+      imageCountry: countryInfo?.flag,
     };
 
 
@@ -162,12 +163,12 @@ const AdminAddPlayer = () => {
     }
   }, [data, getCountry]);
 
-  useEffect(() => {
-    if (selectedState) {
-      const cities = data.filter((city) => city.subcountry === selectedState);
-      setCities(cities);
-    }
-  }, [data, selectedState]);
+  // useEffect(() => {
+  //   if (selectedState) {
+  //     const cities = data.filter((city) => city.subcountry === selectedState);
+  //     setCities(cities);
+  //   }
+  // }, [data, selectedState]);
 
   const country1 = [...new Set(data.map((item) => item.country))].sort();
 

@@ -14,6 +14,9 @@ const adminTournamentsApi = {
   getTournamentByID: (idTournament: String) => {
     return mainAxios.get(`${url}/${idTournament}`);
   },
+  updateInfoTournament: (idTournament: String, data : Object) => {
+    return mainAxios.post(`${url}/update/${idTournament}`, { data });
+  }
 };
 
 export default adminTournamentsApi;

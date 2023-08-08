@@ -11,6 +11,7 @@ import { updatePlayer } from '../../../reducers/slices/updatePlayerSlice';
 import playerApi from '../../../api/playerApi';
 import { toast } from 'react-toastify';
 import configRoutes from '../../../config/configRouter';
+import axios from 'axios';
 
 interface HistoryEventItem {
     _id: string;
@@ -37,6 +38,20 @@ interface PlayerID {
     historyEvent: [];
     rank: number;
 }
+
+interface City {
+    country: string;
+    geonameid: number;
+    name: string;
+    subcountry: string;
+}
+
+interface CountryInfo {
+    name: string;
+    flag: string;
+}
+
+const REST_COUNTRIES_API = "https://restcountries.com/v3.1";
 const AdminUpdatePlayer = () => {
     const { id } = useParams();
     const [dataPlayerID, setDataPlayerID] = useState<PlayerID | null>(null);
@@ -46,14 +61,15 @@ const AdminUpdatePlayer = () => {
 
 
     const navigate = useNavigate();
-    const transiData = useSelector(updatePlayer);
-    // const idPlayer = transiData.id;
+    const [data, setData] = useState<City[]>([]);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
     const [isFormComplete, setIsFormComplete] = useState(false);
     const [namePlayer, setNamePlayer] = useState("");
-    const [country, setCountry] = useState("");
-    const [city, setCity] = useState("");
+    const [getCountry, setCountry] = useState<string | undefined>("");
+    const [countryInfo, setCountryInfo] = useState<CountryInfo | null>(null);
+    const [getState, setState] = useState<string[]>([]);
+    const [selectedState, setSelectedState] = useState<string | undefined>();
     const [linkInfo, setLinkInfo] = useState("");
     const historyEvent: ListHistoryEventArray = (dataPlayerID?.historyEvent ?? []) as ListHistoryEventArray;
 
@@ -63,7 +79,59 @@ const AdminUpdatePlayer = () => {
     const tableRowClass = "border bg-white hover:bg-gray-100";
 
 
+    const country1 = [...new Set(data.map((item) => item.country))].sort();
+    const SPECIAL_CITIES = ["Ho Chi Minh city", "Ha Nội", "Đà Nẵng"];
 
+
+    //Hàm hỗ trợ
+    const formatCityName = (city: string): string => {
+        if (city === "Ha Nội") {
+            return "Hà Nội";
+        } else if (city === "Ho Chi Minh city")
+            return "Thành phố Hồ Chí Minh"
+        return city;
+    };
+
+    const formatCountryName = (country: string): string => {
+        if (country === "Vietnam") {
+            return "Việt Nam";
+        }
+        return country;
+    };
+    const findOriginalCityName = (formattedCity: string): string => {
+        if (formattedCity === "Thành phố Hồ Chí Minh") {
+            return "Ho Chi Minh city";
+        } else if (formattedCity === "Hà Nội") {
+            return "Ha Nội";
+        }
+        return formattedCity;
+    };
+    const handleGoBack = () => {
+        window.history.back();
+    };
+    const getRankFormat = (rank: number) => {
+        const suffixes = ["th", "st", "nd", "rd"];
+        const lastTwoDigits = rank % 100;
+        const lastDigit = rank % 10;
+
+        let suffixIndex = 0;
+        if (lastTwoDigits >= 11 && lastTwoDigits <= 13) {
+            suffixIndex = 0;
+        } else if (lastDigit === 1) {
+            suffixIndex = 1;
+        } else if (lastDigit === 2) {
+            suffixIndex = 2;
+        } else if (lastDigit === 3) {
+            suffixIndex = 3;
+        } else {
+            suffixIndex = 0;
+        }
+
+        return `${rank}${suffixes[suffixIndex]}`;
+    };
+
+
+    //Handles
     const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
@@ -92,6 +160,23 @@ const AdminUpdatePlayer = () => {
             }
         }
     };
+    const handleNameChange = (value: string | number) => {
+        setNamePlayer(String(value));
+    };
+    const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedCountry = e.target.value;
+        const formattedCountry = formatCountryName(selectedCountry);
+        setCountry(formattedCountry);
+    };
+    const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedCity = e.target.value;
+        const formattedCity = formatCityName(selectedCity);
+        setSelectedState(formattedCity);
+    };
+    const handleLinkInfoChange = (value: string | number) => {
+        setLinkInfo(String(value));
+    };
+
 
     const fetchData = async () => {
         if (typeof id === 'string') {
@@ -103,12 +188,12 @@ const AdminUpdatePlayer = () => {
     }
 
     useEffect(() => {
-        if (namePlayer !== "" && country !== "" && city !== "" && selectedImage !== "") {
+        if (namePlayer !== "" && getCountry !== "" && selectedImage !== "") {
             setIsFormComplete(true);
         } else {
             setIsFormComplete(false);
         }
-    }, [namePlayer, country, city, selectedImage]);
+    }, [namePlayer, getCountry, selectedImage]);
 
     useEffect(() => {
         fetchData();
@@ -120,35 +205,54 @@ const AdminUpdatePlayer = () => {
             setNamePlayer(dataPlayerID.playerName);
             setCountry(dataPlayerID.country);
             setLinkInfo(dataPlayerID.linkInfo);
-            setCity(dataPlayerID.city);
+            setSelectedState(dataPlayerID.city);
         }
     }, [dataPlayerID]);
+
+    useEffect(() => {
+        axios
+            .get<City[]>(
+                "https://pkgstore.datahub.io/core/world-cities/world-cities_json/data/5b3dd46ad10990bca47b04b4739a02ba/world-cities_json.json"
+            )
+            .then((res) => setData(res.data))
+            .catch((err) => console.log(err));
+    }, []);
+
+    useEffect(() => {
+        if (getCountry) {
+            let states = data
+                .filter((state) => state.country === getCountry)
+                .map((item) => item.subcountry);
+            states = [...new Set(states)].sort();
+            setState(states);
+
+            axios
+                .get(`${REST_COUNTRIES_API}/name/${getCountry}`)
+                .then((res) => {
+                    if (res.data.length > 0) {
+                        setCountryInfo({
+                            name: res.data[0].name.common,
+                            flag: res.data[0].flags.png
+                        });
+                    }
+                })
+                .catch((err) => console.log(err));
+        }
+    }, [data, getCountry]);
 
     // Xử lý trường hợp chưa có dữ liệu hoặc đang tải dữ liệu
     if (!dataPlayerID) {
         return <div>Loading...</div>;
     }
 
-    const handleNameChange = (value: string | number) => {
-        setNamePlayer(String(value));
-    };
-    const handleCountryChange = (value: string | number) => {
-        setCountry(String(value));
-    };
-    const handleCityChange = (value: string | number) => {
-        setCity(String(value));
-    };
-    const handleLinkInfoChange = (value: string | number) => {
-        setLinkInfo(String(value));
-    };
-
+    //Các hàm xử lý sự kiện button click
     const clickUpdatePlayer = async () => {
         const dataUpdatePlayer: Object = {
             playerName: namePlayer,
             avatarImage: selectedImage,
-            country: country,
-            city: city,
-            linkInfo: linkInfo,
+            country: getCountry,
+            city: selectedState ? selectedState : "",
+            linkInfo: linkInfo ? linkInfo : "",
         };
         if (typeof id === 'string') {
             try {
@@ -161,35 +265,11 @@ const AdminUpdatePlayer = () => {
         }
     }
 
-    const handleGoBack = () => {
-        window.history.back();
-    };
-
-
-    const getRankFormat = (rank: number) => {
-        const suffixes = ["th", "st", "nd", "rd"];
-        const lastTwoDigits = rank % 100;
-        const lastDigit = rank % 10;
-
-        let suffixIndex = 0;
-        if (lastTwoDigits >= 11 && lastTwoDigits <= 13) {
-            suffixIndex = 0;
-        } else if (lastDigit === 1) {
-            suffixIndex = 1;
-        } else if (lastDigit === 2) {
-            suffixIndex = 2;
-        } else if (lastDigit === 3) {
-            suffixIndex = 3;
-        } else {
-            suffixIndex = 0;
-        }
-
-        return `${rank}${suffixes[suffixIndex]}`;
-    };
-
     const handleSelectDetailsEvent = (event: any) => {
         navigate(`${configRoutes.adminEventsDetails}/${event._id}`);
     };
+
+
     return (
         <div>
             <div className="flex flex-col gap-1">
@@ -247,24 +327,8 @@ const AdminUpdatePlayer = () => {
                                     validate={(value) => /^[A-Za-z\s]+$/.test(namePlayer)}
                                     placeholder="Vui lòng nhập tên ở đây"
                                 />
-
-                                <InputAdmin
-                                    type="text"
-                                    value={country}
-                                    onChange={handleCountryChange}
-                                    label="Country"
-                                    placeholder="Vui lòng nhập quốc gia"
-                                />
                             </div>
                             <div className="flex flex-col gap-10">
-                                <InputAdmin
-                                    type="text"
-                                    value={city}
-                                    onChange={handleCityChange}
-                                    label="City"
-                                    validate={(value) => /^[A-Za-z1-9\s]+$/.test(city)}
-                                    placeholder="Vui lòng nhập thành phố"
-                                />
                                 <InputAdmin
                                     type="text"
                                     value={linkInfo}
@@ -272,6 +336,37 @@ const AdminUpdatePlayer = () => {
                                     label="Link Info"
                                     placeholder="Vui lòng nhập đường link"
                                 />
+
+                                <div className="w-full flex flex-col justify-center items-start gap-1">
+                                    <div className="flex justify-center items-end gap-4">
+                                        <div className="">
+                                            <h2 className="text-left font-bold">Select a country:</h2>
+                                            <select className="border border-gray-400 rounded-md py-2 px-4 w-full" onChange={handleCountryChange} value={getCountry}>
+                                                {/* {getCountry === undefined && <option value="Việt Nam">Việt Nam</option>} */}
+                                                {country1.map((items) => (
+                                                    <option key={items} value={items}>
+                                                        {formatCountryName(items)}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        {countryInfo && (
+                                            <div className="">
+                                                <img className={`w-16 h-11 object-cover rounded-lg`} src={countryInfo.flag} alt={`${countryInfo.name} Flag`} />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <h2 className="font-bold">Select a city:</h2>
+                                    <select className="border border-gray-400 rounded-md py-2 px-4 w-full" onChange={handleCityChange} value={findOriginalCityName(selectedState ? selectedState : "")}>
+                                        <option value="">Select City</option>
+                                        {[...SPECIAL_CITIES, ...getState.filter(city => !SPECIAL_CITIES.includes(city))]
+                                            .map((items) => (
+                                                <option key={items} value={findOriginalCityName(items)}>
+                                                    {formatCityName(items)}
+                                                </option>
+                                            ))}
+                                    </select>
+                                </div>
 
                                 <ButtonAdmin isFormComplete={isFormComplete} color="blue" onClick={clickUpdatePlayer}>
                                     Update

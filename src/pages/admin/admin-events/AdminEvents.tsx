@@ -302,6 +302,27 @@ const AdminEvents = () => {
       }
     }
   };
+
+  // Sử dụng useEffect để tự động set giá trị cho place khi người chơi nhập mới
+  const [active, setActive] = useState(false);
+  useEffect(() => {
+    if (newArray.length > 0) {
+      const sortedPlaces = newArray.map((player) => player.place).sort((a, b) => a - b);
+      let nextPlace = 1;
+      for (const currentPlace of sortedPlaces) {
+        if (currentPlace === nextPlace) {
+          nextPlace++;
+        } else {
+          break;
+        }
+      }
+      setPlace(nextPlace);
+      setActive(true);
+    } else {
+      setPlace("");
+      setActive(false);
+    }
+  }, [newArray]);
   
   const handleUpdatePlayer = () => {
     if (selectedPlayer && place && prize) {
@@ -551,7 +572,7 @@ const AdminEvents = () => {
                     value={selectedTournaments ? selectedTournaments._id : ""}
                     onChange={handleTournamentChange}
                   >
-                    <option value="">Select a player</option>
+                    <option value="">Select a Tournament</option>
                     {dataTournaments.map((tourItem) => (
                       <option key={tourItem._id} value={tourItem._id}>
                         {tourItem.nameTour}
@@ -562,7 +583,9 @@ const AdminEvents = () => {
               }
               <div
                 onClick={() => setShowAddPlayers(true)}
-                className="flex w-[30%] mt-6 gap-2 cursor-pointer justify-center items-center px-2 py-1 rounded-xl border-gray-400 border-[1px] hover:bg-blue-500 hover:text-white transition-colors ease-in-out duration-200"
+                className={`flex w-[30%] mt-6 gap-2 cursor-pointer justify-center items-center px-2 py-1 rounded-xl border-gray-400 border-[1px] hover:bg-blue-500 hover:text-white transition-colors ease-in-out duration-200
+                ${active && "bg-blue-500 text-white hover:opacity-90"}
+                `}
               >
                 <FontAwesomeIcon
                   className="text-green-400"
