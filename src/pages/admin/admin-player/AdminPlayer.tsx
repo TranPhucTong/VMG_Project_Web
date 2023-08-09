@@ -25,6 +25,7 @@ interface TableRow {
   avatarImage: string;
   totalWinnings: number;
   vpoyPoint: number;
+  imageCountry: string;
   country: string;
   city: string;
   historyEvent: [];
@@ -112,7 +113,7 @@ const AdminPlayer = () => {
       const res = await playerApi.getPlayer();
       setData(res.data.players);
       setCurrentPage(1); // Cập nhật currentPage thành trang 1 khi không có tìm kiếm
-    } else if (searchType === "playerName" && searchTerm !== ""){
+    } else if (searchType === "playerName" && searchTerm !== "") {
       try {
         const res = await playerApi.getPlayerByName(searchTerm)
         setData(res.data.players);
@@ -153,6 +154,64 @@ const AdminPlayer = () => {
   const startIndex: number = (currentPage - 1) * rowsPerPage;
   const endIndex: number = startIndex + rowsPerPage;
   const currentRows: TableRow[] = data.slice(startIndex, endIndex);
+
+  const renderPageButtons = () => {
+    const pageButtons = [];
+    const maxDisplayedPages: number = 6;
+
+    let startPage = Math.max(1, currentPage - Math.floor(maxDisplayedPages / 2));
+    const endPage = Math.min(startPage + maxDisplayedPages - 1, totalPages);
+
+    if (endPage - startPage < maxDisplayedPages - 1) {
+      startPage = Math.max(1, endPage - maxDisplayedPages + 1);
+    }
+
+    if (startPage > 1) {
+      pageButtons.push(
+        <button
+          key={1}
+          className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300`}
+          onClick={() => handlePageChange(1)}
+        >
+          1
+        </button>
+      );
+      if (startPage > 2) {
+        pageButtons.push(<span key="ellipsis-left">...</span>);
+      }
+    }
+
+    for (let page = startPage; page <= endPage; page++) {
+      pageButtons.push(
+        <button
+          key={page}
+          className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300 ${page === currentPage ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'
+            }`}
+          onClick={() => handlePageChange(page)}
+        >
+          {page}
+        </button>
+      );
+    }
+
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        pageButtons.push(<span key="ellipsis-right">...</span>);
+      }
+      pageButtons.push(
+        <button
+          key={totalPages}
+          className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300 ${totalPages === currentPage ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'
+            }`}
+          onClick={() => handlePageChange(totalPages)}
+        >
+          {totalPages}
+        </button>
+      );
+    }
+
+    return pageButtons;
+  };
 
   const dispatch = useDispatch();
   const handleSelectUpdatePlayer = (player: any) => {
@@ -335,8 +394,9 @@ const AdminPlayer = () => {
                   <td className="px-[16px] py-[20px] text-center min-w-[80px]">
                     {row.vpoyPoint}
                   </td>
-                  <td className="px-[16px] py-[20px] text-center min-w-[80px]">
+                  <td className="px-[16px] flex justify-center items-center gap-2 py-[20px] text-center min-w-[80px]">
                     {row.country}
+                    <img src={row.imageCountry} className="w-14 h-8 object-cover border-[1px] border-gray-400 shadow-xl" alt="image country" />
                   </td>
                   <td className="px-[16px] py-[20px] text-center min-w-[80px]">
                     {row.city}
@@ -390,20 +450,21 @@ const AdminPlayer = () => {
         </div>
 
         <div className="flex items-center pb-12 justify-center">
-          {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-            (page) => (
-              <button
-                key={page}
-                className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300 ${page === currentPage
-                    ? "bg-blue-500 text-white"
-                    : "bg-white text-gray-700"
-                  }`}
-                onClick={() => handlePageChange(page)}
-              >
-                {page}
-              </button>
-            )
-          )}
+          <button
+            className={`mr-4 px-3 py-1 text-sm bg-gray-500 text-white rounded-md border focus:outline-none focus:ring focus:border-blue-300`}
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Prev
+          </button>
+          {renderPageButtons()}
+          <button
+            className={`ml-4 px-3 py-1 bg-green-500 text-white text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300`}
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>
