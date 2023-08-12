@@ -221,6 +221,69 @@ const AdminTournaments = () => {
     setSelectedRow(selectedRow === rowIndex ? null : rowIndex);
   };
 
+  const renderPageButtons = () => {
+    const pageButtons = [];
+    const maxDisplayedPages: number = 6;
+
+    let startPage = Math.max(1, currentPage - Math.floor(maxDisplayedPages / 2));
+    const endPage = Math.min(startPage + maxDisplayedPages - 1, totalPages);
+
+    if (endPage - startPage < maxDisplayedPages - 1) {
+      startPage = Math.max(1, endPage - maxDisplayedPages + 1);
+    }
+
+    if (startPage > 1) {
+      pageButtons.push(
+        <button
+          key={1}
+          className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300`}
+          onClick={() => handlePageChange(1)}
+        >
+          1
+        </button>
+      );
+      if (startPage > 2) {
+        pageButtons.push(<span key="ellipsis-left">...</span>);
+      }
+    }
+
+    for (let page = startPage; page <= endPage; page++) {
+      pageButtons.push(
+        <button
+          key={page}
+          className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300 ${page === currentPage ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'
+            }`}
+          onClick={() => handlePageChange(page)}
+        >
+          {page}
+        </button>
+      );
+    }
+
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        pageButtons.push(<span key="ellipsis-right">...</span>);
+      }
+      pageButtons.push(
+        <button
+          key={totalPages}
+          className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300 ${totalPages === currentPage ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'
+            }`}
+          onClick={() => handlePageChange(totalPages)}
+        >
+          {totalPages}
+        </button>
+      );
+    }
+
+    return pageButtons;
+  };
+
+
+
+
+
+
   let totalTournaments = 0;
 
   const demMang = () => {
@@ -525,20 +588,21 @@ const AdminTournaments = () => {
           </table>
         </div>
         <div className="flex items-center pb-12 justify-center">
-          {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-            (page) => (
-              <button
-                key={page}
-                className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300 ${page === currentPage
-                    ? "bg-blue-500 text-white"
-                    : "bg-white text-gray-700"
-                  }`}
-                onClick={() => handlePageChange(page)}
-              >
-                {page}
-              </button>
-            )
-          )}
+          <button
+            className={`mr-4 px-3 py-1 text-sm bg-gray-500 text-white rounded-md border focus:outline-none focus:ring focus:border-blue-300`}
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Prev
+          </button>
+          {renderPageButtons()}
+          <button
+            className={`ml-4 px-3 py-1 bg-green-500 text-white text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300`}
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>

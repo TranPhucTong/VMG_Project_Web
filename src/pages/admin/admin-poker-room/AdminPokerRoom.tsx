@@ -299,6 +299,8 @@ const AdminPokerRoom = () => {
     }
   };
 
+
+  //Tính toán pages
   const totalPages: number = Math.ceil(dataPokerRoom.length / rowsPerPage);
   const handleRowsPerPageChange = (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -315,6 +317,63 @@ const AdminPokerRoom = () => {
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
   const handleMenuToggle = (rowIndex: number) => {
     setSelectedRow(selectedRow === rowIndex ? null : rowIndex);
+  };
+  const renderPageButtons = () => {
+    const pageButtons = [];
+    const maxDisplayedPages: number = 6;
+
+    let startPage = Math.max(1, currentPage - Math.floor(maxDisplayedPages / 2));
+    const endPage = Math.min(startPage + maxDisplayedPages - 1, totalPages);
+
+    if (endPage - startPage < maxDisplayedPages - 1) {
+      startPage = Math.max(1, endPage - maxDisplayedPages + 1);
+    }
+
+    if (startPage > 1) {
+      pageButtons.push(
+        <button
+          key={1}
+          className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300`}
+          onClick={() => handlePageChange(1)}
+        >
+          1
+        </button>
+      );
+      if (startPage > 2) {
+        pageButtons.push(<span key="ellipsis-left">...</span>);
+      }
+    }
+
+    for (let page = startPage; page <= endPage; page++) {
+      pageButtons.push(
+        <button
+          key={page}
+          className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300 ${page === currentPage ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'
+            }`}
+          onClick={() => handlePageChange(page)}
+        >
+          {page}
+        </button>
+      );
+    }
+
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        pageButtons.push(<span key="ellipsis-right">...</span>);
+      }
+      pageButtons.push(
+        <button
+          key={totalPages}
+          className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300 ${totalPages === currentPage ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'
+            }`}
+          onClick={() => handlePageChange(totalPages)}
+        >
+          {totalPages}
+        </button>
+      );
+    }
+
+    return pageButtons;
   };
 
   let totalPokerRooms = 0;
@@ -388,9 +447,8 @@ const AdminPokerRoom = () => {
             <div className="w-full flex-col flex gap-5">
               <div className="flex flex-col w-full items-center">
                 <div
-                  className={`rounded-full overflow-hidden w-48 h-48 border-4 ${
-                    selectedLogo ? "border-green-500" : "border-gray-500"
-                  }`}
+                  className={`rounded-full overflow-hidden w-48 h-48 border-4 ${selectedLogo ? "border-green-500" : "border-gray-500"
+                    }`}
                 >
                   {selectedLogo ? (
                     <img
@@ -448,9 +506,8 @@ const AdminPokerRoom = () => {
             <div className="w-full flex-col flex gap-3">
               <div className="flex flex-col w-full items-center">
                 <div
-                  className={`rounded-2xl overflow-hidden w-72 h-48 border-4 ${
-                    selectedAvatar ? "border-green-500" : "border-gray-500"
-                  }`}
+                  className={`rounded-2xl overflow-hidden w-72 h-48 border-4 ${selectedAvatar ? "border-green-500" : "border-gray-500"
+                    }`}
                 >
                   {selectedAvatar ? (
                     <img
@@ -555,11 +612,10 @@ const AdminPokerRoom = () => {
                 <tr
                   key={index}
                   className={`border-b-[5px] shadow-sm border-solid border-[#f4f4f9]
-                  ${
-                    index % 2 === 0
+                  ${index % 2 === 0
                       ? "border-l-4 border-l-blue-500"
                       : "border-l-4 border-l-green-500"
-                  }
+                    }
                   `}
                 >
                   <td className=" px-[16px] py-[20px] text-left min-w-[80px] pl-[24px] pr-[8px]">
@@ -644,21 +700,21 @@ const AdminPokerRoom = () => {
           </table>
         </div>
         <div className="flex items-center pb-12 justify-center">
-          {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-            (page) => (
-              <button
-                key={page}
-                className={`ml-2 px-3 py-1 text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300 ${
-                  page === currentPage
-                    ? "bg-blue-500 text-white"
-                    : "bg-white text-gray-700"
-                }`}
-                onClick={() => handlePageChange(page)}
-              >
-                {page}
-              </button>
-            )
-          )}
+          <button
+            className={`mr-4 px-3 py-1 text-sm bg-gray-500 text-white rounded-md border focus:outline-none focus:ring focus:border-blue-300`}
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Prev
+          </button>
+          {renderPageButtons()}
+          <button
+            className={`ml-4 px-3 py-1 bg-green-500 text-white text-sm rounded-md border focus:outline-none focus:ring focus:border-blue-300`}
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
         </div>
       </div>
 
@@ -683,11 +739,10 @@ const AdminPokerRoom = () => {
                 <div className="w-full flex-col flex gap-5">
                   <div className="flex flex-col w-full items-center">
                     <div
-                      className={`rounded-full overflow-hidden w-48 h-48 border-4 ${
-                        selectedLogoModal
+                      className={`rounded-full overflow-hidden w-48 h-48 border-4 ${selectedLogoModal
                           ? "border-green-500"
                           : "border-gray-500"
-                      }`}
+                        }`}
                     >
                       {selectedLogoModal ? (
                         <img
@@ -745,11 +800,10 @@ const AdminPokerRoom = () => {
                 <div className="w-full flex-col flex gap-3">
                   <div className="flex flex-col w-full items-center">
                     <div
-                      className={`rounded-2xl overflow-hidden w-72 h-48 border-4 ${
-                        selectedAvatarModal
+                      className={`rounded-2xl overflow-hidden w-72 h-48 border-4 ${selectedAvatarModal
                           ? "border-green-500"
                           : "border-gray-500"
-                      }`}
+                        }`}
                     >
                       {selectedAvatarModal ? (
                         <img
