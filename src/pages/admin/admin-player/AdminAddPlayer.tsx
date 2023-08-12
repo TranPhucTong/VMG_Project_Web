@@ -144,7 +144,7 @@ const AdminAddPlayer = () => {
   useEffect(() => {
     if (getCountry) {
       let states = data
-        .filter((state) => state.country === getCountry)
+        .filter((state) => state.country === findOriginalCountryName(getCountry))
         .map((item) => item.subcountry);
       states = [...new Set(states)].sort();
       setState(states);
@@ -186,6 +186,12 @@ const AdminAddPlayer = () => {
       return "Việt Nam";
     }
     return country;
+  };
+  const findOriginalCountryName = (formattedCountry: string): string => {
+    if (formattedCountry === "Việt Nam") {
+      return "Vietnam";
+    }
+    return formattedCountry;
   };
   const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCity = e.target.value;
@@ -266,8 +272,7 @@ const AdminAddPlayer = () => {
                   <div className="flex justify-center items-end gap-4">
                     <div className="">
                       <h2 className="text-left font-bold">Select a country:</h2>
-                      <select className="border border-gray-400 rounded-md py-2 px-4 w-full" onChange={handleCountryChange} value={getCountry}>
-                        {getCountry === undefined && <option value="Việt Nam">Việt Nam</option>}
+                      <select className="border border-gray-400 rounded-md py-2 px-4 w-full" onChange={handleCountryChange} value={findOriginalCountryName(getCountry ? getCountry : "")}>
                         {country1.map((items) => (
                           <option key={items} value={items}>
                             {formatCountryName(items)}

@@ -71,58 +71,78 @@ interface PokerTours {
   description: string;
 }
 
+interface EventTournament {
+  _id: string;
+  nameEvent: string;
+  buyIn: number;
+  venueEvent: string;
+  dateEvent: string;
+  entries: number;
+  tourementID: string;
+  pokerRoom: PokerRooms;
+  pokerTour: PokerTours;
+  resultsPrize: [];
+}
+
+type EventTournamentArray = EventTournament[];
+
+
+interface TournamentID {
+  _id: string;
+  nameTour: string;
+  dayStart: string;
+  dayEnd: string;
+  image: string;
+  pokerTour: PokerTours;
+  pokerRoom: PokerRooms;
+  venueTour: string;
+  Schedule: [];
+}
+
 
 const AdminEvents = () => {
+
+  //Input
   const [nameEvent, setNameEvent] = useState("");
   const [venueEvent, setVenueEvent] = useState("");
   const [dateEvent, setDateEvent] = useState("")
-  const [resultsPrize, setResultsPrize] = useState([]);
   const [entries, setEntries] = useState<string | number>("");
   const [buyIn, setBuyIn] = useState<string | number>("");
 
-
-
-  const [isChecked, setIsChecked] = useState(false);
-
-
+  //Input + Tournament
   const [selectedPlayer, setSelectedPlayer] = useState<TableRow | null>(null);
   const [selectedTournaments, setSelectedTournaments] = useState<TournamentsCreat | null>(null);
+  const [dataTournamentID, setDataTournamentID] = useState<TournamentID | null>(
+    null
+  );
+
+  const [filterId, setFilterId] = useState<string | number>("");
+
+
+  //MODAL
   const [place, setPlace] = useState<string | number>("");
   const [prize, setPrize] = useState<string | number>("");
 
+
+  //STATE TRUE/FALSE
   const [showAddPlayers, setShowAddPlayers] = useState(false);
   const [isFormComplete, setIsFormComplete] = useState(false);
   const [isFormCompleteEventTour, setIsFormCompleteEventTour] = useState(false);
   const [isSave, setIsSave] = useState(false);
   const [showVeRoomTour, setShowVeRoomTour] = useState(false);
   const [isAddToList, setIsAddToList] = useState(true);
+  const [isChecked, setIsChecked] = useState(false);
+  // Sử dụng useEffect để tự động set giá trị cho place khi người chơi nhập mới
+  const [active, setActive] = useState(false);
 
-
+  //STATE EFFECT DATA
   const [dataPlayer, setDataPlayer] = useState<TableRow[]>([]);
   const [dataEvent, setDataEvent] = useState<EventRow[]>([]);
   const [dataTournaments, setDataTournaments] = useState<TournamentsCreat[]>([]);
-
-
   const [selectedPokerTour, setSelectedPokerTour] = useState<PokerTours | null>(null);
   const [selectedPokerRoom, setSelectedPokerRoom] = useState<PokerRooms | null>(null);
 
-
-  function truncateText(text: string, maxLength: number): string {
-    if (text.length > maxLength) {
-      return text.slice(0, maxLength) + '...';
-    }
-    return text;
-  }
-
-  const handlePokerTourChange = (tour: PokerTours | null) => {
-    setSelectedPokerTour(tour);
-  };
-
-  const handlePokerRoomChange = (room: PokerRooms | null) => {
-    setSelectedPokerRoom(room);
-  };
-
-
+  //FAKE ARRAY
   const [newArray, setNewArray] = useState<{
     _id: string;
     playerName: string;
@@ -130,29 +150,89 @@ const AdminEvents = () => {
     prize: number;
   }[]>([]);
 
-  const fetchData = async () => {
-    const res = await playerApi.getPlayer();
-    const resEvent = await eventApi.getEvent();
-    setDataPlayer(res.data.players);
-    setDataEvent(resEvent.data.eventPorkers);
+
+  //HÀM HỖ TRỢ
+  function truncateText(text: string, maxLength: number): string {
+    if (text.length > maxLength) {
+      return text.slice(0, maxLength) + '...';
+    }
+    return text;
+  }
+  const tableClass = "table w-full border-collapse table-auto";
+  const tableHeaderClass = "bg-gray-200 text-gray-600 uppercase text-sm leading-normal";
+  const tableRowClass = "border bg-white hover:bg-gray-100";
+  const formatBuyIn = (value: number | string) => {
+    // Kiểm tra nếu value không phải là một số hoặc rỗng, thì trả về giá trị ban đầu
+    if (isNaN(Number(value)) || value === "") {
+      return value;
+    }
+    // Định dạng số tiền với dấu chấm giữa hàng nghìn
+    return Number(value).toLocaleString('vi');
   };
+  // Định dạng giá trị buyIn khi hiển thị trong ô input với dấu chấm giữa hàng nghìn
+  const formattedBuyIn = formatBuyIn(buyIn);
+  const formatPrize = (value: number | string) => {
+    // Kiểm tra nếu value không phải là một số hoặc rỗng, thì trả về giá trị ban đầu
+    if (isNaN(Number(value)) || value === "") {
+      return value;
+    }
+
+    // Định dạng số tiền với dấu chấm giữa hàng nghìn
+    return Number(value).toLocaleString('vi');
+  };
+
+  // Định dạng giá trị prize khi hiển thị trong ô input với dấu chấm giữa hàng nghìn
+  const formattedPrize = formatPrize(prize);
+  //Tính toán tổng event
+  let totalEvents = 0;
+
+  const demMang = () => {
+    for (var i = 0; i < dataEvent.length; i++) {
+      totalEvents = i + 1;
+    }
+  };
+  demMang();
+
+  const formatDate = (dateString: string) => {
+    const dateObj = new Date(dateString);
+    return dateObj.toLocaleDateString("en-GB");
+  };
+
+
+
+
+
+
+
+  // CÁC HÀM FETCHDATA
+  const fetchDataPlayers = async () => {
+    const res = await playerApi.getPlayer();
+    setDataPlayer(res.data.players);
+  }
   const fetchDataTours = async () => {
-    const res = await adminTournamentsApi.getAllTournaments()
-    setDataTournaments(res.data.data);
+    try {
+      const res = await adminTournamentsApi.getAllTournaments();
+      setDataTournaments(res.data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const fetchDataEvent = async () => {
+    const resEvent = await eventApi.getEvent();
+    setDataEvent(resEvent.data.eventPorkers);
+  }
+  const fetchDataEventSingle = async () => {
+    const resEvent = await eventApi.getEvent();
+    const filteredEvents = (resEvent.data.eventPorkers as EventTournament[])
+      .filter(event => !event.tourementID);
+    setDataEvent(filteredEvents);
   }
 
-  useEffect(() => {
-    fetchDataTours();
-  }, [dataTournaments])
 
-  useEffect(() => {
-    if (selectedTournaments) {
-      setShowVeRoomTour(false);
-    }
-  }, [selectedTournaments])
 
+  //CÁC HÀM USEEFFECT
   useEffect(() => {
-    fetchData();
+    fetchDataEvent();
     const handleOutsideClick = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setSelectedRow(null);
@@ -164,7 +244,21 @@ const AdminEvents = () => {
     return () => {
       document.removeEventListener("click", handleOutsideClick);
     };
-  }, [dataPlayer]);
+  }, []);
+
+  useEffect(() => {
+    fetchDataTours();
+  }, [])
+
+  useEffect(() => {
+    fetchDataPlayers();
+  }, [])
+
+  useEffect(() => {
+    if (selectedTournaments) {
+      setShowVeRoomTour(false);
+    }
+  }, [selectedTournaments])
 
   useEffect(() => {
     if (nameEvent !== "" && buyIn !== "" && venueEvent !== "" && dateEvent !== "" && entries !== "" && newArray.length !== 0 && (selectedPokerTour !== null || selectedPokerRoom !== null)) {
@@ -191,52 +285,60 @@ const AdminEvents = () => {
     }
 
   }, [nameEvent, buyIn, dateEvent, entries, newArray, selectedTournaments]);
+  useEffect(() => {
+    if (newArray.length > 0) {
+      const sortedPlaces = newArray.map((player) => player.place).sort((a, b) => a - b);
+      let nextPlace = 1;
+      for (const currentPlace of sortedPlaces) {
+        if (currentPlace === nextPlace) {
+          nextPlace++;
+        } else {
+          break;
+        }
+      }
+      setPlace(nextPlace);
+      setActive(true);
+    } else {
+      setPlace("");
+      setActive(false);
+    }
+  }, [newArray]);
+  useEffect(() => {
+    if (selectedPlayer) {
+      // Kiểm tra xem selectedPlayer khác với các người chơi trong newArray
+      const isPlayerInArray = newArray.some((player) => player._id === selectedPlayer._id);
+      setIsAddToList(!isPlayerInArray); // Đặt lại trạng thái isAddToList
+    } else {
+      setIsAddToList(true); // Nếu không có selectedPlayer, đặt lại trạng thái isAddToList
+    }
+  }, [selectedPlayer, newArray])
 
 
+
+
+
+  //HÀM CHANGE
+  const handlePokerTourChange = (tour: PokerTours | null) => {
+    setSelectedPokerTour(tour);
+  };
+
+  const handlePokerRoomChange = (room: PokerRooms | null) => {
+    setSelectedPokerRoom(room);
+  };
   const handleNameEventChange = (value: string | number) => {
     setNameEvent(String(value));
   };
-  // const handlEvenueEventtChange = (value: string | number) => {
-  //   setVenueEvent(String(value));
-  // };
   const handlDateEventChange = (value: string | number) => {
     setDateEvent(String(value));
   };
-
   const handleBuyInChange = (value: string | number) => {
     const rawValue = value.toString();
     const numericValue = Number(rawValue.replace(/[^0-9]/g, ''));
     setBuyIn(numericValue);
   };
-  const formatBuyIn = (value: number | string) => {
-    // Kiểm tra nếu value không phải là một số hoặc rỗng, thì trả về giá trị ban đầu
-    if (isNaN(Number(value)) || value === "") {
-      return value;
-    }
-
-    // Định dạng số tiền với dấu chấm giữa hàng nghìn
-    return Number(value).toLocaleString('vi');
-  };
-
-  // Định dạng giá trị buyIn khi hiển thị trong ô input với dấu chấm giữa hàng nghìn
-  const formattedBuyIn = formatBuyIn(buyIn);
-
-
   const handleEntriesChange = (value: string | number) => {
     setEntries(Number(value));
   };
-
-
-
-
-  const tableClass = "table w-full border-collapse table-auto";
-  const tableHeaderClass = "bg-gray-200 text-gray-600 uppercase text-sm leading-normal";
-  const tableRowClass = "border bg-white hover:bg-gray-100";
-
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(5);
-  const menuRef = useRef<HTMLDivElement>(null);
-
   const handlePlayerChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const playerId = event.target.value;
     const player = dataPlayer.find((p) => p._id === playerId) || null;
@@ -248,6 +350,39 @@ const AdminEvents = () => {
     const tournament = dataTournaments.find((p) => p._id === tournamentId) || null;
     setSelectedTournaments(tournament);
   };
+  const handleTournamentFilterChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newFilterId = event.target.value;
+    await setFilterId(newFilterId);
+
+    let fetchedDataTournamentID: TournamentID | null = null;
+    if (newFilterId !== "" && newFilterId !== "tournamentSingle") {
+      try {
+        const res = await adminTournamentsApi.getTournamentByID(newFilterId);
+        fetchedDataTournamentID = res.data.tourement;
+      } catch (error) {
+        console.error("Error fetching tournament data:", error);
+      }
+    }
+
+    if (newFilterId === "") {
+      fetchDataEvent();
+    } else if (newFilterId === "tournamentSingle") {
+      fetchDataEventSingle();
+    } else if (fetchedDataTournamentID) {
+      setDataTournamentID(fetchedDataTournamentID);
+
+      // Kiểm tra fetchedDataTournamentID trước khi sử dụng
+      const formartShedule = fetchedDataTournamentID.Schedule.reduce((el: EventTournamentArray, evntCurr: any) => {
+        if (fetchedDataTournamentID) { // Kiểm tra fetchedDataTournamentID
+          let param = { ...evntCurr, pokerRoom: fetchedDataTournamentID.pokerRoom, pokerTour: fetchedDataTournamentID.pokerTour }
+          return el.concat({ ...param })
+        } else {
+          return el;
+        }
+      }, []);
+      setDataEvent(formartShedule);
+    }
+  };
 
   const handlePlaceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPlace(event.target.value);
@@ -258,27 +393,48 @@ const AdminEvents = () => {
     const numericValue = Number(rawValue.replace(/[^0-9]/g, ''));
     setPrize(numericValue);
   };
-  const formatPrize = (value: number | string) => {
-    // Kiểm tra nếu value không phải là một số hoặc rỗng, thì trả về giá trị ban đầu
-    if (isNaN(Number(value)) || value === "") {
-      return value;
-    }
-
-    // Định dạng số tiền với dấu chấm giữa hàng nghìn
-    return Number(value).toLocaleString('vi');
+  const navigate = useNavigate();
+  const handleSelectDetailsEvent = (event: any) => {
+    navigate(`${configRoutes.adminEventsDetails}/${event._id}`);
   };
 
-  // Định dạng giá trị prize khi hiển thị trong ô input với dấu chấm giữa hàng nghìn
-  const formattedPrize = formatPrize(prize);
+  const handleVenueCheckboxChange = () => {
+    setIsChecked((prev) => !prev); // Đảo ngược trạng thái của ô checkbox
+    if (!isChecked && selectedPokerRoom) {
+      // Nếu ô checkbox trước đó không được tích và có selectedPokerRoom, gán giá trị của selectedPokerRoom.Adress cho venueEvent
+      setVenueEvent(selectedPokerRoom.Adress);
+    } else {
+      // Nếu ô checkbox trước đó được tích hoặc không có selectedPokerRoom, đặt venueEvent về rỗng
+      setVenueEvent("");
+    }
+  };
+
+  const handlEvenueEventtChange = (value: string | number) => {
+    if (!isChecked) {
+      // Nếu ô checkbox không được tích, cập nhật giá trị cho venueEvent
+      setVenueEvent(String(value));
+    }
+  };
+  const handleChangeCheckBoxTour = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setShowVeRoomTour(!event.target.checked);
+  };
 
 
 
+
+
+
+
+
+
+
+  //SƯ KIỆN THÊM XÓA PLAYER CHO FAKE ARRAY
   const handleAddPlayer = () => {
     if (selectedPlayer && place && prize) {
       // Kiểm tra người chơi đã tồn tại trong newArray chưa
       const isPlayerExist = newArray.find((player) => player._id === selectedPlayer._id);
       const isPlaceExist = newArray.some((player) => player.place === Number(place));
-  
+
       if (isPlayerExist) {
         // Nếu người chơi đã tồn tại, thông báo đã có
         toast.success("Người chơi đã tồn tại trong danh sách!");
@@ -303,27 +459,6 @@ const AdminEvents = () => {
     }
   };
 
-  // Sử dụng useEffect để tự động set giá trị cho place khi người chơi nhập mới
-  const [active, setActive] = useState(false);
-  useEffect(() => {
-    if (newArray.length > 0) {
-      const sortedPlaces = newArray.map((player) => player.place).sort((a, b) => a - b);
-      let nextPlace = 1;
-      for (const currentPlace of sortedPlaces) {
-        if (currentPlace === nextPlace) {
-          nextPlace++;
-        } else {
-          break;
-        }
-      }
-      setPlace(nextPlace);
-      setActive(true);
-    } else {
-      setPlace("");
-      setActive(false);
-    }
-  }, [newArray]);
-  
   const handleUpdatePlayer = () => {
     if (selectedPlayer && place && prize) {
       setNewArray((prevArray) =>
@@ -345,22 +480,23 @@ const AdminEvents = () => {
     }
   };
 
-
-  useEffect(() => {
-    if (selectedPlayer) {
-      // Kiểm tra xem selectedPlayer khác với các người chơi trong newArray
-      const isPlayerInArray = newArray.some((player) => player._id === selectedPlayer._id);
-      setIsAddToList(!isPlayerInArray); // Đặt lại trạng thái isAddToList
-    } else {
-      setIsAddToList(true); // Nếu không có selectedPlayer, đặt lại trạng thái isAddToList
-    }
-  }, [selectedPlayer, newArray])
-
   const handleRemovePlayer = (playerIdToRemove: string) => {
     setNewArray((prevArray) => prevArray.filter((player) => player._id !== playerIdToRemove));
   };
-
   const sortedArray = [...newArray].sort((a, b) => a.place - b.place);
+
+  const choosePlayer = (player: any) => {
+    setPrize(player.prize);
+    setPlace(player.place);
+    setSelectedPlayer(player);
+    setIsAddToList(false);
+  }
+
+
+
+
+
+  //HÀM SET GIÁ TRỊ VỀ BAN ĐẦU
   const defauthValue = () => {
     setNameEvent("");
     setBuyIn("");
@@ -370,6 +506,11 @@ const AdminEvents = () => {
     setNewArray([]);
     setIsChecked(false);
   }
+
+
+
+
+  //SỰ KIỆN THÊM SỬA XÓA CHO EVENTS
   const clickAddEvent = async () => {
     const dataCreateEventSingle: Object = {
       nameEvent: nameEvent,
@@ -396,21 +537,19 @@ const AdminEvents = () => {
     if (showVeRoomTour === false) {
       try {
         const response = await eventApi.createEvent(dataCreateEventOfTour);
-        console.log("Thành công", response);
         toast.success("Thêm event mới vào tournament thành công");
         defauthValue();
+        fetchDataEvent();
       } catch (error) {
-        console.log("Thất bại", error);
         toast.error("Trùng tên event hoặc chưa nhập đầy đủ thông tin. Vui lòng kiểm tra lại!!!")
       }
     } else {
       try {
         const response = await eventApi.createEvent(dataCreateEventSingle);
-        console.log("Thành công", response);
         toast.success("Thêm event mới thành công");
         defauthValue();
+        fetchDataEvent();
       } catch (error) {
-        console.log("Thất bại", error);
         toast.error("Trùng tên event hoặc chưa nhập đầy đủ thông tin. Vui lòng kiểm tra lại!!!")
       }
     }
@@ -421,12 +560,18 @@ const AdminEvents = () => {
       const res = await eventApi.deleteEvent(event._id);
       console.log(res);
       toast.success("Xóa event thành công");
+      fetchDataEvent();
     } catch (error) {
       console.log(error);
       toast.error("Xóa thất bại ")
     }
   }
 
+
+  //Hàm TÍNH TOÁN PAGE
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(5);
+  const menuRef = useRef<HTMLDivElement>(null);
   const totalPages: number = Math.ceil(dataEvent.length / rowsPerPage);
   const handleRowsPerPageChange = (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -445,57 +590,6 @@ const AdminEvents = () => {
     setSelectedRow(selectedRow === rowIndex ? null : rowIndex);
   };
 
-  let totalEvents = 0;
-
-  const demMang = () => {
-    for (var i = 0; i < dataEvent.length; i++) {
-      totalEvents = i + 1;
-    }
-  };
-  demMang();
-
-
-  const navigate = useNavigate();
-  const handleSelectDetailsEvent = (event: any) => {
-    navigate(`${configRoutes.adminEventsDetails}/${event._id}`);
-  };
-
-  const handleVenueCheckboxChange = () => {
-    setIsChecked((prev) => !prev); // Đảo ngược trạng thái của ô checkbox
-    if (!isChecked && selectedPokerRoom) {
-      // Nếu ô checkbox trước đó không được tích và có selectedPokerRoom, gán giá trị của selectedPokerRoom.Adress cho venueEvent
-      setVenueEvent(selectedPokerRoom.Adress);
-    } else {
-      // Nếu ô checkbox trước đó được tích hoặc không có selectedPokerRoom, đặt venueEvent về rỗng
-      setVenueEvent("");
-    }
-  };
-
-  const handlEvenueEventtChange = (value: string | number) => {
-    if (!isChecked) {
-      // Nếu ô checkbox không được tích, cập nhật giá trị cho venueEvent
-      setVenueEvent(String(value));
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    const dateObj = new Date(dateString);
-    return dateObj.toLocaleDateString("en-GB");
-  };
-
-
-  const handleChangeCheckBoxTour = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setShowVeRoomTour(!event.target.checked);
-  };
-
-
-
-  const choosePlayer = (player: any) => {
-    setPrize(player.prize);
-    setPlace(player.place);
-    setSelectedPlayer(player);
-    setIsAddToList(false);
-  }
 
   return (
     <div>
@@ -643,22 +737,44 @@ const AdminEvents = () => {
 
       </div>
       <div className="mt-5 rounded-lg bg-white shadow-xl">
-        <div className='px-8 py-4 text-left'>
-          <h1 className='text-2xl font-bold text-left'>List Events</h1>
-        </div>
-        <div className="text-left p-6 border-b flex justify-between items-center border-solid md:flex-row md:items-center md:gap-0 border-secondary text-sm md:text-base">
+        <div className='flex justify-between items-center'>
           <div>
-            <span>Show rows per page:</span>
+            <div className='px-8 py-4 text-left'>
+              <h1 className='text-2xl font-bold text-left'>List Events</h1>
+            </div>
+            <div className="text-left p-6 border-b flex justify-between items-center border-solid md:flex-row md:items-center md:gap-0 border-secondary text-sm md:text-base">
+              <div>
+                <span>Show rows per page:</span>
+                <select
+                  className="ml-1 px-2 py-1 rounded-md border focus:outline-none focus:ring focus:border-blue-300"
+                  value={rowsPerPage}
+                  onChange={handleRowsPerPageChange}
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div className='flex gap-2 justify-center items-center px-8 py-4'>
+            <p className='text-xl font-bold text-blue-500'>Filter The List By : </p>
             <select
-              className="ml-1 px-2 py-1 rounded-md border focus:outline-none focus:ring focus:border-blue-300"
-              value={rowsPerPage}
-              onChange={handleRowsPerPageChange}
+              id="player-select"
+              className="border p-1 rounded-xl border-gray-400 w-96"
+              value={filterId}
+              onChange={handleTournamentFilterChange}
             >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
+              <option value="">All Events</option>
+              <option value="tournamentSingle">Events Single</option>
+              {dataTournaments.map((tourItem) => (
+                <option key={tourItem._id} value={tourItem._id}>
+                  {tourItem.nameTour}
+                </option>
+              ))}
             </select>
           </div>
         </div>
+
         <div className="overflow-x-auto pb-14">
           <table className="w-full text-sm text-dark-purple transition-all duration-500 ease-in-out ">
             {/* Render các hàng trong bảng */}

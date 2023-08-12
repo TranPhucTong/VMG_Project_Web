@@ -1,4 +1,4 @@
-import { faChevronLeft, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faChevronLeft, faTrash, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { ChangeEvent, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -11,6 +11,7 @@ import OrganizationalCheckbox from "../../../components/components-admin/Organiz
 import { getDownloadURL, ref, uploadBytesResumable } from "@firebase/storage";
 import storage from "../../../firebase/firebase";
 import { toast } from "react-toastify";
+import eventApi from "../../../api/adminEventsApi";
 
 interface EventTournament {
   _id: number;
@@ -104,8 +105,6 @@ const AdminTournamentsDetails = () => {
       console.log(error);
     }
   };
-
-  console.log(dataTournamentID);
 
   useEffect(() => {
     fetchData();
@@ -240,6 +239,18 @@ const AdminTournamentsDetails = () => {
 
   }
 
+  const handleDelete = async (event: any) => {
+    try {
+      const res = await eventApi.deleteEvent(event._id);
+      console.log(res);
+      toast.success("Xóa event thành công");
+      fetchData();
+    } catch (error) {
+      console.log(error);
+      toast.error("Xóa thất bại ")
+    }
+  }
+
   return (
     <div>
       <div className="flex flex-col gap-1">
@@ -347,6 +358,7 @@ const AdminTournamentsDetails = () => {
               <th className={tableHeaderClass}>Entries</th>
               <th className={tableHeaderClass}>Date Event</th>
               <th className={tableHeaderClass}>Venue Event</th>
+              <th className={tableHeaderClass}>Delete</th>
             </tr>
           </thead>
           <tbody>
@@ -367,6 +379,9 @@ const AdminTournamentsDetails = () => {
                 </td>
                 <td className="border px-4 py-2">
                   {truncateText(event.venueEvent, 20)}
+                </td>
+                <td className="border px-4 py-2">
+                  <FontAwesomeIcon onClick={() => handleDelete(event)} icon={faTrash} className="text-red-500 text-xl cursor-pointer hover:text-red-700" />
                 </td>
               </tr>
             ))}
