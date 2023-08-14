@@ -11,6 +11,7 @@ import InputAdmin from "../../../components/components-admin/InputAdmin";
 import OrganizationalCheckbox from "../../../components/components-admin/OrganizationalCheckbox";
 import adminTournamentsApi from "../../../api/adminTournamentsApi";
 import { toast } from "react-toastify";
+import playerApi from "../../../api/playerApi";
 
 interface ResultPrizeItem {
   _id: string;
@@ -63,6 +64,18 @@ interface TournamentsCreat {
   pokerRoomId: string;
 }
 
+interface TableRow {
+  _id: string;
+  playerName: string;
+  linkInfo: string;
+  avatarImage: string;
+  totalWinnings: number;
+  vpoyPoint: number;
+  country: string;
+  city: string;
+  historyEvent: [];
+  rank: number;
+}
 const AdminInfoEvents = () => {
   const { id } = useParams();
   const [dataEventID, setDataEventID] = useState<EventID | null>(null);
@@ -79,6 +92,12 @@ const AdminInfoEvents = () => {
   const [pokerTour, setPokerTour] = useState<PokerTours | null>(null);
   const resultsPrize: ResultsPrizeArray = (dataEventID?.resultsPrize ??
     []) as ResultsPrizeArray;
+  const [newArray, setNewArray] = useState<{
+    _id: string;
+    playerName: string;
+    place: number;
+    prize: number;
+  }[]>([]);
 
   const totalPrize = (entries * buyIn).toLocaleString();
 
@@ -329,6 +348,173 @@ const AdminInfoEvents = () => {
     }
   }, [dataEventID, dataTournaments, selectedTournaments]);
 
+  const copyResultsToNewArray = () => {
+    setShowAddPlayers(true);
+  };
+
+
+
+  const [showAddPlayers, setShowAddPlayers] = useState(false);
+  const [selectedPlayer, setSelectedPlayer] = useState<TableRow | null>(null);
+  const [dataPlayer, setDataPlayer] = useState<TableRow[]>([]);
+  const [place, setPlace] = useState<string | number>("");
+  const [prize, setPrize] = useState<string | number>("");
+  const [isAddToList, setIsAddToList] = useState(true);
+  const [isSave, setIsSave] = useState(false);
+  const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    setNewArray([...resultsPrize]);
+  }, [dataEventID]);
+
+  const fetchDataPlayers = async () => {
+    const res = await playerApi.getPlayer();
+    setDataPlayer(res.data.players);
+  }
+  useEffect(() => {
+    fetchDataPlayers();
+  }, [])
+
+
+  const handlePlaceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPlace(event.target.value);
+  };
+  const handlePlayerChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const playerId = event.target.value;
+    const player = dataPlayer.find((p) => p._id === playerId) || null;
+    setSelectedPlayer(player);
+  };
+  const handlePrizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = event.target.value;
+    const numericValue = Number(rawValue.replace(/[^0-9]/g, ''));
+    setPrize(numericValue);
+  };
+
+  const formatPrize = (value: number | string) => {
+    // Kiểm tra nếu value không phải là một số hoặc rỗng, thì trả về giá trị ban đầu
+    if (isNaN(Number(value)) || value === "") {
+      return value;
+    }
+
+    // Định dạng số tiền với dấu chấm giữa hàng nghìn
+    return Number(value).toLocaleString('vi');
+  };
+
+  // Định dạng giá trị prize khi hiển thị trong ô input với dấu chấm giữa hàng nghìn
+  const formattedPrize = formatPrize(prize);
+
+  const handleAddPlayer = () => {
+    if (selectedPlayer && place && prize) {
+      // Kiểm tra người chơi đã tồn tại trong newArray chưa
+      const isPlayerExist = newArray.find((player) => player._id === selectedPlayer._id);
+      const isPlaceExist = newArray.some((player) => player.place === Number(place));
+
+      if (isPlayerExist) {
+        // Nếu người chơi đã tồn tại, thông báo đã có
+        toast.success("Người chơi đã tồn tại trong danh sách!");
+      } else if (isPlaceExist) {
+        // Nếu rank đã tồn tại, hiển thị thông báo lỗi
+        toast.error("Rank này đã có trong danh sách!");
+      } else {
+        // Nếu người chơi và rank đều chưa tồn tại, thêm người chơi vào newArray
+        setNewArray((prevArray) => [
+          ...prevArray,
+          {
+            _id: selectedPlayer._id,
+            playerName: selectedPlayer.playerName,
+            place: Number(place),
+            prize: Number(prize),
+          },
+        ]);
+        setSelectedPlayer(null);
+        setPlace("");
+        setPrize(0);
+      }
+    }
+  };
+  const handleUpdatePlayer = () => {
+    if (selectedPlayer && place && prize) {
+      setNewArray((prevArray) =>
+        prevArray.map((player) =>
+          player._id === selectedPlayer._id
+            ? {
+              ...player,
+              playerName: selectedPlayer.playerName,
+              place: Number(place),
+              prize: Number(prize),
+            }
+            : player
+        )
+      );
+      setSelectedPlayer(null);
+      setPlace("");
+      setPrize(0);
+      setIsAddToList(true);
+    }
+  };
+
+  const handleRemovePlayer = (playerIdToRemove: string) => {
+    setNewArray((prevArray) => prevArray.filter((player) => player._id !== playerIdToRemove));
+  };
+  const sortedArray = [...newArray].sort((a, b) => a.place - b.place);
+  const choosePlayer = (player: any) => {
+    setPrize(player.prize);
+    setPlace(player.place);
+    setSelectedPlayer(player);
+    setIsAddToList(false);
+  }
+  useEffect(() => {
+    if (newArray.length > 0) {
+      const sortedPlaces = newArray.map((player) => player.place).sort((a, b) => a - b);
+      let nextPlace = 1;
+      for (const currentPlace of sortedPlaces) {
+        if (currentPlace === nextPlace) {
+          nextPlace++;
+        } else {
+          break;
+        }
+      }
+      setPlace(nextPlace);
+      setActive(true);
+    } else {
+      setPlace("");
+      setActive(false);
+    }
+  }, [newArray]);
+  useEffect(() => {
+    if (selectedPlayer) {
+      // Kiểm tra xem selectedPlayer khác với các người chơi trong newArray
+      const isPlayerInArray = newArray.some((player) => player._id === selectedPlayer._id);
+      setIsAddToList(!isPlayerInArray); // Đặt lại trạng thái isAddToList
+    } else {
+      setIsAddToList(true); // Nếu không có selectedPlayer, đặt lại trạng thái isAddToList
+    }
+    if (newArray.length !== 0) {
+      setIsSave(true);
+    }
+
+  }, [selectedPlayer, newArray]);
+
+  const clickUpdatePrizeListEvent = async () => {
+    const dataUpdatePrizeList = {
+      resultsPrize : newArray
+    }
+    try {
+      const response = await eventApi.updatePrizeList(
+        id ? id : "",
+        dataUpdatePrizeList
+      );
+      toast.success("Cập nhật List Prize Event thành công");
+      fetchData();
+      setShowAddPlayers(false)
+    } catch (error) {
+      console.log("Thất bại", error);
+      toast.error("Cập nhật List Prize Event thất bại");
+    }
+
+  }
+
+
   return (
     <div className="">
       <div className="flex flex-col gap-1">
@@ -425,10 +611,13 @@ const AdminInfoEvents = () => {
         </div>
       </div>
       <div className="p-2 w-full mt-10 bg-white rounded-xl shadow-xl">
-        <div className="mb-4 text-left">
+        <div className="mb-4 flex justify-between items-center text-left">
           <h2 className="text-xl font-bold text-teal-500">
             Competition Results
           </h2>
+          <button onClick={copyResultsToNewArray} className="mr-1 px-2 py-1 rounded-xl bg-green-500 text-white hover:opacity-90">
+            Update Competition Results
+          </button>
         </div>
         <table className={`${tableClass} h-full`}>
           <thead>
@@ -611,6 +800,113 @@ const AdminInfoEvents = () => {
                 </ButtonAdmin>
               </div>
             )}
+          </div>
+        </div>
+      )}
+      {showAddPlayers && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center">
+          <div className="absolute inset-0 bg-gray-950 opacity-50"></div>
+          <div className="bg-white w-[800px] h-auto relative z-30 shadow-xl rounded-lg p-6">
+            <div className="absolute right-6 top-6">
+              <FontAwesomeIcon
+                onClick={() => setShowAddPlayers(false)}
+                className="font-bold text-4xl text-gray-400 hover:text-red-400 cursor-pointer"
+                icon={faXmark}
+              />
+            </div>
+            <div className="">
+              <h1 className="text-3xl uppercase font-bold text-blue-500">
+                Update List
+              </h1>
+            </div>
+
+            <div className='flex flex-col gap-6 w-full justify-center items-center mt-4'>
+              {/* Hiển thị danh sách người chơi */}
+              <div className='flex flex-col w-[50%]'>
+                <label className='text-left font-bold' htmlFor="player-select">Select Player:</label>
+                <select
+                  id="player-select"
+                  className="border p-1"
+                  value={selectedPlayer ? selectedPlayer._id : ""}
+                  onChange={handlePlayerChange}
+                >
+                  <option value="">Select a player</option>
+                  {dataPlayer.map((player) => (
+                    <option key={player._id} value={player._id}>
+                      {player.playerName} - ({player.country})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Form nhập thông tin người chơi */}
+
+              <div className='flex gap-3'>
+                <label className='font-bold' htmlFor="place-input">Rank:</label>
+                <input
+                  className='border p-1'
+                  type="number"
+                  id="place-input"
+                  value={place}
+                  onChange={handlePlaceChange}
+                />
+              </div>
+
+              <div className='flex gap-3'>
+                <label className='font-bold' htmlFor="prize-input">Prize:</label>
+                <input
+                  type="text"
+                  className='border p-1'
+                  id="prize-input"
+                  value={formattedPrize}
+                  onChange={handlePrizeChange}
+                />
+              </div>
+
+              <div className='flex justify-center items-center gap-4 w-full'>
+                <button className={`px-4 py-2 rounded-xl bg-blue-500 text-white hover:opacity-90  ${isAddToList ? " " : "opacity-50 pointer-events-none disabled"}`} onClick={handleAddPlayer}>Add To List</button>
+                <button
+                  className={`px-4 py-2 rounded-xl bg-violet-500 text-white hover:opacity-90 ${isAddToList && "opacity-50 pointer-events-none disabled"}`}
+                  onClick={handleUpdatePlayer}
+                >
+                  Update to List
+                </button>
+              </div>
+
+
+              {/* Hiển thị thông tin của newArray */}
+              <div className="overflow-y-scroll w-full" style={{ maxHeight: '300px' }}>
+                <table className={tableClass}>
+                  <thead>
+                    <tr>
+                      <th className={tableHeaderClass}>ID</th>
+                      <th className={tableHeaderClass}>Player Name</th>
+                      <th className={tableHeaderClass}>Rank</th>
+                      <th className={tableHeaderClass}>Prize</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sortedArray.map((player, index) => (
+                      <tr key={index} className={`${tableRowClass} cursor-pointer`}>
+                        <td className="border px-4 py-2">{player._id}</td>
+                        <td onClick={() => choosePlayer(player)} className="border px-4 py-2 underline hover:text-blue-500">{player.playerName}</td>
+                        <td className="border px-4 py-2">{player.place}</td>
+                        <td className="border px-4 py-2">{(player.prize).toLocaleString()} VNĐ</td>
+                        <td className="border px-4 py-2">
+                          <button
+                            className="px-2 py-1 rounded-md bg-red-500 text-white"
+                            onClick={() => handleRemovePlayer(player._id)}
+                          >
+                            Remove
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <button className={`px-4 py-2 rounded-xl bg-green-500 text-white hover:opacity-90 ${isSave ? "" : "opacity-50 pointer-events-none disabled"}`} onClick={clickUpdatePrizeListEvent}>Save and Update</button>
+            </div>
           </div>
         </div>
       )}
